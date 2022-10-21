@@ -1,16 +1,15 @@
 library(terra)
 terraOptions(prog=1)
 
-nd <- rast('/datasets/work/af-tern-mal-deb/work/projects/soilDepth_2019/soilDepth/SLGAReady/DES_000_200_EV_N_P_AU_NAT_C_20190901.tif')
-od <- rast('/datasets/work/lw-soildatarepo/work/http/Products/TERN/SLGA/DES/DES_000_200_EV_N_P_AU_NAT_C_20140801.tif')
-
+od <- rast('/datasets/work/lw-soildatarepo/work/http/Products/TERN/SLGA/CLY/CLY_000_005_05_N_P_AU_TRN_N_20210902.tif')
+nd <- rast('/datasets/work/lw-soildatarepo/work/http/Products/TERN/SLGA/SOC/SOC_000_005_05_N_P_AU_NAT_N_20220727.tif')
 
 compareGeom(nd, od)
 
 
 
 nd <- rast('/datasets/work/af-digiscapesm/work/Ross/TERN/SOCV2/SLGAReady/SOC_000_005_EV_N_P_AU_NAT_N_20120404.tif')
-od <- rast('/datasets/work/lw-soildatarepo/work/http/Products/TERN/SLGA/SOC/SOC_000_005_EV_N_P_AU_NAT_C_20140801.tif')
+od <- rast('/datasets/work/lw-soildatarepo/work/http/Products/TERN/SLGA/V1/SOC/SOC_000_005_EV_N_P_AU_NAT_C_20140801.tif')
 compareGeom(nd, od)
 
 
