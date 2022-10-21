@@ -1,0 +1,87 @@
+---
+title: "Soil Texture digital soil mapping"
+author: "Brendan Malone"
+date: "17 December 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Digital soil mapping of soil texture fractions. 3D mapping with uncertainty. Compositional data. 
+Fair bit of data manipulations
+
+#### Getting the data prepped for fitting models
+1. Use soil data federator to pull necessary soil information:
+  * Field texture descriptions with associated texture qualfiers and soil classes. The need for soil class information is to help determine whether the soil maybe subplastic and we need this to ge t a better estimate of the soil texture fractions, as with the qualifiers too. 
+  * Lab based texture fractions.
+  
+2. With the field data go through each data set and run the algorithm to get texture fractions. This is to check whether there are dodgy data with which we can remove.
+
+3. Combine all soil morph datasets and look for duplicates and remove the offending ones. The determination of duplicates was made on the basis of spatial coordinates as this seemed the best option given that observation ids were not necessarily unique. After combining all dataset the were 205911 soil profiles. In actulality after looking at the coordinates there are 195274 profiles.
+
+4. Working on the lab data. This step is to compile the lab data by looking at the various lab methods. For each dataset there are predominant lab methods so it will be a matter of seking these out and ultimately combining or mixing the data where multiple lab methods exist. 
+
+5. Need to check spatial overlaps betwen lab and field data. Preference will be given to lab data.
+
+6. Generate 50 realisations of the texture fractions for each oberserations (morph data)
+
+
+These steps are summarised in R code Processes. Admitedly the first process is the the data download from the soil data federator. However this is not the case as the first and suceeding processes are to do with the cleaning and filtering of the data.
+
+
+* Process 1:
+  * Lab data: Lab data is measured by all sorts of different methods (the federator has this at around 30-40 methods). For each jurisdiction there is generally preference to 2 or 3 main methods. The job of this process is to generate for each location a single value for clay/sand/silt or essentially remove information about method and just have soil tecture information. There is a bit of gap filling required for example where there is only 2 texture fractions required. There is also some checking for things like closure within reasonable limits and also for duplicate site measurments which are filtered out. 
+  * Morphological data: This involves a check for missing cooridinates and unidentified texture classes. This process does generate a simulation of soil texture fractions using the pre-defined algoritm merely for the purpsoe of checking for data consistancy. 
+
+* Process 2: 
+  * Lab and Morphological data: This combines outputs from process 1 and checks for duplicates which are filtered out.
+  
+* Process 3:
+ * This is a check of both the lab and morph data where we want to check the instances of where there is both lab and morph data and want to flag those morph sites in preference for the lab data. 
+
+* Process 4:
+  * With the cleaned up morphological data we want to cycle through each profile a generate a plausible reality. Will save a version of this reality for future analysis.
+  
+_updated status_
+All the the lab based data is in: `~projects/ternlandscapes_2019/soiltexture/data/process2/combined_lab_PSA_data.rds`
+The morphological data is in:
+`projects/ternlandscapes_2019/soiltexture/data/process4/morph_sims`
+There are 50 realisations of these data.
+I guess i need to figure out a labelling convention and then intersect these data with the new stack of covariates. This will be _process 5_.
+
+
+
+### Prior steps before raster data extraction
+* For each site i want to give it a numerical id. Both lab and and morphological data. Lab data goes from 1 to 17892. Morphological data goes from 17892 to XX. Each layer at each site given a sequential layer number. 
+
+* The texture data is converted to log transforms via the isometric log ratio method. 
+
+* Splines are used to for the log ratios of clay and sand to derive values at standards GSM depths. Am using the a slight variant of the spline function that does some basic checking of the data before attempting to fit splines. This avoids getting snagged in the situations of dodgy data. This also results in bring sble to idenetify and filter out any offending observations. 
+
+* link up spline estimates of log ratio clay an dsand with the label data.
+
+* Together these steps amount to some serious computation for all sites given that there are 204013 plus or minus a few.
+
+### Raster data extraction 
+
+Nothing to special here. All the covariates has been readied and the process is relatively straightforwards
+
+
+## model fitting
+
+Ranger models were used as like that for soil depth. Prior to doing this work for each depths and variable the ranger model was run in order to optimisie fitting parameters. This is good practice to ensure the model is correctly specified to the task and the data. 
+
+Once the paramter optimisations 
+
+
+
+
+  
+
+
+  
+
+
+  
