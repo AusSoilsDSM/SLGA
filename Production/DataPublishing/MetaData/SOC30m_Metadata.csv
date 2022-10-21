@@ -1,0 +1,27 @@
+ACCESS_CONSTRAINTS,Creative Commons Attribution 4.0 (CC By)
+ACKNOWLEDGEMENTS,TERN acknowledges the important contributions of state and federal soil agencies for providing access to soil profile data sets.
+AREA_OR_POINT,Area
+ATTRIBUTE_ACCURACY,Each individual pixel has an associated value of upper (95%) and lower (5%) confidence intervals of the prediction.
+COLLABORATING_ORGANISATIONS," University of Sydney;CSIRO;Geoscience Australia; Queensland Department of Science, Information Technology, Innovation and the Arts; Northern Territory Department of Land Resource Management; Western Australia Department of Agriculture and Food; South Australia Department of Environment, Water and Natural Resources; Victoria Department of Environment and Primary Industries; NSW Office of Environment and Heritage; Tasmania Department Primary Industries, Parks, Water and Environment;"
+COMPLETENESS,The Soil and Landscape Grid of Australia covers all of continental Australia and near coastal islands land areas
+CONTACT_EMAIL,esupport@tern.org.au
+CONTACT_ORGANISATION,Terrestrial Ecosystem Research Network (TERN)
+CONTACT_POSTAL,"Long Pocket Precinct, Foxtail Building #1019 Level 5 The University of Queensland 80 Meiers Road Indooroopilly QLD 4068 Australia"
+CONTACT_STREET_ADDRESS,"Long Pocket Precinct, Foxtail Building #1019 Level 5 The University of Queensland 80 Meiers Road Indooroopilly QLD 4068 Australia"
+CREDIT,Access to this data has been made possible by CSIRO and the Terrestrial Ecosystem Research Network (TERN) which is supported by the Australian Government through the National Collaborative Research Infrastructure Strategy and the Super Science Initiative and by agreement from the data custodians of the background data. All of the organisations listed as collaborating agencies have also contributed significantly to the production of this dataset.
+CUSTODIAN,CSIRO
+DATASET_TITLE,Australia-wide 3D digital soil property maps - Soil Organic Carbon Percent XXXX YYYY (1 arc second resolution) Version 1
+DATA_CREATION_DATE,4/04/2022
+DATA_END_DATE,4/04/2022
+DATA_START_DATE,1/01/1950
+DESCRIPTION,"This dataset consists of six maps of organic carbon content along with an estimate of the uncertainty represented by the 90% prediction interval. Organic carbon maps were produced up to a depth of 200 cm, for six intervals: 0-5 cm, 5-15 cm, 15-30 cm, 30-60 cm, 60-100 cm and 100-200 cm. The maps were obtained through interpolation of 25,200 depth-harmonized organic carbon measurements using quantile regression forest and a large set of environmental covariates as predictors. Validation with 10-fold cross-validation showed that all six maps had negligible bias, relatively small error and that prediction uncertainty was adequately estimated."
+JURISDICTION,Australia
+LICENCE,http://creativecommons.org/licenses/by/4.0/
+MAINTENANCE_AND_UPDATE_FREQUENCY,Not Planned
+POINT_OF_CONTACT_POSITION,alexandre.wadoux@sydney.edu.au
+POSITIONAL_ACCURACY,The horizontal positional error is the same as for the raw SRTM 3 second data with 90% of tested locations within 7.2 m for Australia. See Rodriguez et al. (2006) for more information.
+PROGRESS,Complete
+PROJECT_DESCRIPTION,The TERN Soil and Landscape Grid of Australia Facility has produced a comprehensive fine-resolution grid of soil attributes and important land surface parameters. The data is consistent with the Specifications of the GlobalSoilMap and is managed as part of the Australian Soil Resource Information System (ASRIS).
+RELATED_LINKS_1,https://aussoilsdsm.esoil.io/slga-version-2-products/total-soil-organic-carbon-content
+STORED_DATA_FORMAT,Cloud Optimised Geotiff
+Units,Percent
