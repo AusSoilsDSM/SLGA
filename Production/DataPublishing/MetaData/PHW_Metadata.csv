@@ -1,0 +1,30 @@
+ACCESS_CONSTRAINTS,Creative Commons Attribution 4.0 (CC By)
+ACKNOWLEDGEMENTS,TERN acknowledges the important contributions of state and federal soil agencies for providing access to soil profile data sets.
+AREA_OR_POINT,Area
+ATTRIBUTE_ACCURACY,Each individual pixel has an associated value of upper (95%) and lower (5%) confidence intervals of the prediction.
+COLLABORATING_ORGANISATIONS,"CSIRO; University of Sydney; Geoscience Australia; Queensland Department of Science, Information Technology, Innovation and the Arts; Northern Territory Department of Land Resource Management; Western Australia Department of Agriculture and Food; South Australia Department of Environment, Water and Natural Resources; Victoria Department of Environment and Primary Industries; NSW Office of Environment and Heritage; Tasmania Department Primary Industries, Parks, Water and Environment;"
+COMPLETENESS,The Soil and Landscape Grid of Australia covers all of continental Australia and near coastal islands land areas
+CONTACT_EMAIL,esupport@tern.org.au
+CONTACT_ORGANISATION,Terrestrial Ecosystem Research Network (TERN)
+CONTACT_POSTAL,"Long Pocket Precinct, Foxtail Building #1019 Level 5 The University of Queensland 80 Meiers Road Indooroopilly QLD 4068 Australia"
+CONTACT_STREET_ADDRESS,"Long Pocket Precinct, Foxtail Building #1019 Level 5 The University of Queensland 80 Meiers Road Indooroopilly QLD 4068 Australia"
+CREDIT,Access to this data has been made possible by CSIRO and the Terrestrial Ecosystem Research Network (TERN) which is supported by the Australian Government through the National Collaborative Research Infrastructure Strategy and the Super Science Initiative and by agreement from the data custodians of the background data. All of the organisations listed as collaborating agencies have also contributed significantly to the production of this dataset.
+CUSTODIAN,CSIRO
+DATASET_TITLE,Australia-wide 3D digital soil property maps - pH (1:5 water) XXXX YYYY (3 arc second resolution)
+DATA_CREATION_DATE,13/09/2021
+DATA_END_DATE,13/09/2021
+DATA_START_DATE,1/01/1950
+DESCRIPTION,"This is the soil pH (1:5 soil:water; Rayment and Lyons (2011) method 4A1) product of the TERN Soil and Landscape Grid of Australia Facility. Each soil attribute product is a collection of 6 depth slices. Each depth raster has an upper and lower uncertainty limit raster associated with it. The depths provided are 0-5cm, 5-15cm, 15-30cm, 30-60cm, 60-100cm and 100-200cm, consistent with the specifications of the GlobalSoilMap. Soil pH data (both field and lab measured) were compiled from across Australia using the Australian soil data federator (Searle et al. 2021). The federator publishes API endpoints that allows one to retrieve and integrate soils data from around Australia. The federator is supported by numerous data custodians that currently include the CSIRO, which manages the Australian National Soil Archive and associated NATSOIL database, and the various State and Territory government soil survey agencies.
+
+The digital soil mapping approach first involved the development of an empirical conversion to convert field measurements of pH into pseudo-lab 4A1 measurements. Doing this allowed to increase the number of available data from just over 27, 000 observations to more than 145, 000 (surface soil layer). All soil profile data were harmonised using a mass-preserving soil depth spline to give consistent depth supports corresponding to the aforementioned depth intervals. The Random Forest (RF) machine learning algorithm couple with variogram modelling of RF model residuals was used to develop a predictive characterisation of soil pH for each depth interval based on statistical relationships between soil pH data and exhaustive environmental covariate information such as from digital elevation models, gamma radiometric data, climatic data, and remote sensing data derivatives. Prediction uncertainties were derived empirically from a manual repeated bootstrapping random sampling procedure and are expressed as lower 5th and upper 95th prediction intervals. An external validation dataset (n = 10000 including both lab and field measurements) was used to evaluate the goodness of model predictions and quantified uncertainties. Spatial resolution: 3 arc seconds (approx 90m) Total number of gridded maps for this attribute: 18 Number of pixels with coverage per layer: 2007M (49200 * 40800) Total size before compression: about 8GB Total size after compression: about 4GB Data license : Creative Commons Attribution 3.0 (CC By) Target data standard: GlobalSoilMap specification."
+JURISDICTION,Australia
+LICENCE,http://creativecommons.org/licenses/by/4.0/
+MAINTENANCE_AND_UPDATE_FREQUENCY,Not Planned
+POINT_OF_CONTACT_POSITION,brendan.malone@csiro.au
+POSITIONAL_ACCURACY,The horizontal positional error is the same as for the raw SRTM 3 second data with 90% of tested locations within 7.2 m for Australia. See Rodriguez et al. (2006) for more information.
+PROGRESS,Complete
+PROJECT_DESCRIPTION,The TERN Soil and Landscape Grid of Australia Facility has produced a comprehensive fine-resolution grid of soil attributes and important land surface parameters. The data is consistent with the Specifications of the GlobalSoilMap and is managed as part of the Australian Soil Resource Information System (ASRIS).
+RELATED_LINKS_1,https://www.clw.csiro.au/aclep/soilandlandscapegrid/index.html
+RELATED_LINKS_2,https://sites.google.com/view/aussoilsdsm/slga-version-2-products/soil-ph-15-water
+STORED_DATA_FORMAT,Cloud Optimised Geotiff
+UNITS,None

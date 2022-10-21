@@ -1,0 +1,19 @@
+Value,Count,Red,Green,Blue,Class_Name
+11,1,168,246,193,11 - Shallow Sand or loam (< 20cm) over relatively friable clay subsoils
+12,1,50,155,4,12 - Deep Sand or loam (> 20cm) over relatively friable clay subsoils
+21,1,118,208,250,21 - Shallow (< 50cm) Friable non-cracking clay or clay loam soils
+22,1,38,113,234,22 - Deep (> 50cm) Friable non-cracking clay or clay loam soils
+31,1,50,72,138,31 - Seasonally or permanently wet soils
+41,1,226,64,0,41 - Shallow(< 50cm) Red yellow or grey earthy(loamy) soils
+42,1,218,0,18,42 - Deep(< 50cm) Red yellow or grey earthy (loamy) soils
+51,1,21,96,12,51 - Peaty soils
+61,1,236,248,0,61 - Deep sandy soils (> 50cm)
+71,1,237,237,185,71 - Shallow sandy soils (< 50cm)
+72,1,233,159,110,72 - Shallow stony soils (< 30 cm)
+81,1,244,207,247,81 - Shallow Sand or loam (< 20cm) over intractable clay
+82,1,226,82,214,82 - Deep Sand or loam (> 20cm) over intractable clay subsoils
+91,1,201,201,201,91 - Grey Cracking clay soils
+92,1,155,151,155,92 - Other Shallow (< 50cm) Cracking clay soils
+93,1,83,79,82,93 - Other Moderately Deep (50 - 100cm) Cracking clay soils
+94,1,0,6,8,94 - Other Deep (> 100cm) Cracking clay soils
+101,1,101,20,110,101 - Highly calcareous soils

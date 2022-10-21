@@ -1,0 +1,52 @@
+SoilTypes_extract
+
+TestDataDrill: data from SoilTypes_extract (from SoilDataFederator) "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/SoilTypes.rds")
+
+combiningRDS: each RDS file from TestDataDrill in "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/RDS_samples")
+
+model: training data "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/CovariateTraining.rds")
+
+predict: model "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/Models/Ranger.rds",
+  		covarites to use "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/CovariatesUsed.rds")
+
+prediction_to_raster: RDS produced by predict in "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/RDS_order")
+
+mosaic:    .tif produced by prediction_to_raster in "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/ASC_ORD")
+	or .tif produced by prediction_to_raster_suborder in "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/ASC_SUBORD"
+	or .tif produced by confusion in "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/ASC_SUBORD/Confusion")
+
+confusion: All predictions for tile in  "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/RDS_order/AllPredictions")
+
+model_suborder: all data "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/CovariateTraining.rds",
+		training data "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/Test_ASC_ORD.rds"
+		data from SoilTypes_extract (from SoilDataFederator) "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/SoilTypes.rds",
+		original orders ""//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/OriginalFactors.rds")
+
+predict_suborder: models for suborder (i 1-14)  "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/Models/Ranger.suborder_i.rds",
+		  covarites to use "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/CovariatesUsed.rds",
+		  original orders ""//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/OriginalFactors.rds")
+
+prediction_to_raster _suborder (files: RDS produced by predict in "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/RDS_suborder")
+
+validate: test set produced in model "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/Test_ASC_ORD.rds",
+	  test suborder set produced in model_suborder
+	   order model "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/Models/Ranger.rds",
+  	   models for suborder (i 1-14)  "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/Models/Ranger.suborder_i.rds")
+
+predict_Kfold: Kfold model "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/Models/Ranger_Kfold.rds",
+  		covarites to use "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/CovariatesUsed.rds")
+
+models_build: training data "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/CovariateTraining.rds")
+
+models_selection: test data "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/Test_ASC_ORD.rds.rds",
+		  tune data "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/Tune_ASC_ORD.rds.rds")
+
+asris_comparison: asris map "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Ross/ASRIS/ASRISCombinedGeo.shp",
+		  original factors "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/OriginalFactors.rds")
+
+atlas_comparison: atlas map "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Ross/Atlas/soilAtlas2M_ASC.shp",
+		  original factors "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/OriginalFactors.rds")
+
+covariance: atlas map "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Ross/Atlas/soilAtlas2M_ASC.shp",
+	    asris map "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Ross/ASRIS/ASRISCombinedGeo.shp",
+	    moasic "//osm-27-cdc.it.csiro.au/OSM_CBR_AF_DIGISCAPESM_work/Harry/ASC_ORD_mosaic.tif"

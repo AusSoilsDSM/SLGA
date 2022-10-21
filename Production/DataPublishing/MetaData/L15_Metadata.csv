@@ -1,0 +1,32 @@
+ACCESS_CONSTRAINTS,Creative Commons Attribution 4.0 (CC By)
+ACKNOWLEDGEMENTS,TERN acknowledges the important contributions of state and federal soil agencies for providing access to soil profile data sets.
+AREA_OR_POINT,Area
+ATTRIBUTE_ACCURACY,Each individual pixel has an associated value of upper (95%) and lower (5%) confidence intervals of the prediction.
+COLLABORATING_ORGANISATIONS,"CSIRO; University of Sydney; Geoscience Australia; Queensland Department of Science, Information Technology, Innovation and the Arts; Northern Territory Department of Land Resource Management; Western Australia Department of Agriculture and Food; South Australia Department of Environment, Water and Natural Resources; Victoria Department of Environment and Primary Industries; NSW Office of Environment and Heritage; Tasmania Department Primary Industries, Parks, Water and Environment;"
+COMPLETENESS,The Soil and Landscape Grid of Australia covers all of continental Australia and near coastal islands land areas
+CONTACT_EMAIL,esupport@tern.org.au
+CONTACT_ORGANISATION,Terrestrial Ecosystem Research Network (TERN)
+CONTACT_POSTAL,"Long Pocket Precinct, Foxtail Building #1019 Level 5 The University of Queensland 80 Meiers Road Indooroopilly QLD 4068 Australia"
+CONTACT_STREET_ADDRESS,"Long Pocket Precinct, Foxtail Building #1019 Level 5 The University of Queensland 80 Meiers Road Indooroopilly QLD 4068 Australia"
+CREDIT,Access to this data has been made possible by CSIRO and the Terrestrial Ecosystem Research Network (TERN) which is supported by the Australian Government through the National Collaborative Research Infrastructure Strategy and the Super Science Initiative and by agreement from the data custodians of the background data. All of the organisations listed as collaborating agencies have also contributed significantly to the production of this dataset.
+CUSTODIAN,CSIRO
+DATASET_TITLE,Australia-wide 3D digital soil property maps - 15 Bar Lower Limit Volumetric Water Content (Percent) XXXX YYYY (3 arc second resolution) Version 1
+DATA_CREATION_DATE,14/06/2021
+DATA_END_DATE,14/06/2021
+DATA_START_DATE,1/01/1950
+DESCRIPTION,"We employed standard Digital Soil Modelling (DSM) (McBratney et. al., 2002) methods utilising publicly available soil observation data and publicly available environmental covariate data in an environmental correlation approach using machine learning to map the soil properties of volumetric (mm/mm) drained upper limit (DUL) and soil lower limit (LL15) across the entire continent at 6 standard depths at 90m pixel resolution.
+All data management and modelling were performed in the R programming language and these scripts are available at https://github.com/AusSoilsDSM/SLGA/tree/master/SLGA/Development/Ross/Scripts/AWC
+We used pedotransfer functions for estimating DUL and LL15 from readily available soil attribute data have recently been developed by Somarathna and Searle (in press) using data from the National Soil Site Collation (NSSC) (Searle, 2014). Soil property data was obtained using the TERN SoilDataFederator (SDF) (https://aussoilsdsm.esoil.io/site-data/soildatafederator).
+The spatial modelling of DUL and LL15 is done at six standard depth intervals conforming to the GlobalSoilMap Specifications. (GlobalSoilMap Science Committee, 2015) ie 0-5cm, 5-15cm, 15-30cm, 30-60cm, 60-100cm and 100-200cm. To facilitate modelling at these standard depths the observed data set depths were harmonised to these depths using a mass preserving spline method as described Bishop (1999). A total of 20545 soil profiles were splined in this way and used as inputs to the spatial modelling.
+We utilised the publicly available Terrestrial Ecosystem Research Network (TERN) raster covariate stack. It is comprised of 154 individual raster data layers. (https://esoil.io/TERNLandscapes/Public/Pages/COGs/90m_Covariates.html). 
+The covariate stack was used as the independent variable data for the predictions across all grid cells and at each depth. The prediction process was the same as that described for external validation, except the predictions were made at all grid cells across the entire GRDC region. Using the bootstrap sample of predictions at each pixel, we generated estimates of the 5th and 95th uncertainty limits at each pixel."
+JURISDICTION,Australia
+LICENCE,http://creativecommons.org/licenses/by/4.0/
+MAINTENANCE_AND_UPDATE_FREQUENCY,Not Planned
+POINT_OF_CONTACT_POSITION,ross.searle@csiro.au
+POSITIONAL_ACCURACY,The horizontal positional error is the same as for the raw SRTM 3 second data with 90% of tested locations within 7.2 m for Australia. See Rodriguez et al. (2006) for more information.
+PROGRESS,Complete
+PROJECT_DESCRIPTION,The TERN Soil and Landscape Grid of Australia Facility has produced a comprehensive fine-resolution grid of soil attributes and important land surface parameters. The data is consistent with the Specifications of the GlobalSoilMap and is managed as part of the Australian Soil Resource Information System (ASRIS).
+RELATED_LINKS_1,https://aussoilsdsm.esoil.io/slga-version-2-products/soil-hydraulic-properties
+STORED_DATA_FORMAT,Cloud Optimised Geotiff
+Units,Percent
