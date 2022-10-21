@@ -1,12 +1,14 @@
-#library(Rcpp)
+
 library(reticulate)
 library(xml2)
 library(htmltidy)
 library(stringr)
-# library(terra)
-# library(raster)
+library(terra)
 
-source('c:/PrivateInfo/PrivateInfo.R')
+
+source('/datasets/work/af-digiscapesm/work/Ross/SLGA/PrivateInfo.R')
+
+
 
 gdalPath <- '/apps/gdal/3.2.2/bin'
 tmpDir <- paste0('/scratch1/', ident, '/tmp')
@@ -44,101 +46,103 @@ isValidCOG <- function(fname, quiet=T){
 }
 
 
-publishRaster  <- function(inRasterPath=NULL, outDir=NULL, resampleTemplate=NULL, adjustVal=1, fillHoles=F, maskTemplate=NULL, sigFigures=-1, metadataTable=NULL, RATTable=NULL, MakeCOG=F){
+publishRaster  <- function(inRasterPath=NULL, outDir=NULL, rasterTemplate=NULL, doResample=F, isIntegerRaster=F, adjustVal=1, setMin=NULL, fillHoles=F, applyMask=T, sigFigures=-1, metadataTable=NULL, RATTable=NULL, MakeCOG=F){
   
   tmpDir <- paste0('/scratch1/', ident, '/tmp')
   tmpRpath <- paste0(tmpDir, '/',basename(inRasterPath))
   dst_filename = paste0(outDir, '/', basename(inRasterPath))
   
-  # froot <- str_replace( basename(inRasterPath), '.tif', '')
-  # fls <- list.files(tmpRpath, pattern = froot, full.names = T)
-  # 
-  # if(length(fls)>0){
-  #   for (h in 1:length(fls)) {
-  #     
-  #     r <- unlink(fls[h])
-  #     if(r==1){
-  #       stop('Problem deleting files.....')
-  #     }
-  #   }
-  # }
-  # 
+  templateR <- terra::rast(rasterTemplate)
   
+  print(paste0('Making copy of ', basename(inRasterPath), ' to ', tmpRpath))
+  file.copy(from=inRasterPath, to=tmpRpath, overwrite = T)
   
-  tr=NULL
-  
-  if(!is.null(resampleTemplate))
+  if(doResample)
   {
-    print(paste('Resampling ',inRasterPath))
+    print(paste('Resampling ',tmpRpath))
     terraOptions(prog=1)
     tr <- terra::rast(inRasterPath)
-    templateR <- terra::rast(resampleTemplate)
-    #tr <- doResample(inRaster=tr, resampleTemplate=templateR)
     trs <- terra::resample(tr, templateR, method = 'near')
     print(paste0('Writing resampled raster to - ', tmpRpath))
     terra::writeRaster(trs, filename=tmpRpath, overwrite=T)
   }
   
   if(fillHoles){
-    raster::rasterOptions(progress = 'text') 
-    templateR <- raster::raster('/datasets/work/af-tern-mal-deb/work/datasets/national/covariates/mosaics/90m/Relief_dems_3s_mosaic1.tif')
-    rrs <- raster::raster(tmpRpath)
-    print('Filling .....')
-    r2 <- raster::focal(rrs, w=matrix(1,3,3),  fun=mean, na.rm=T, NAonly=T)
-    raster::writeRaster(r2, filename=tmpRpath, overwrite=T)
+    terraOptions(prog=1)
+    rrs <- terra::rast(tmpRpath)
+    print('Filling holes .....')
+    r2 <- terra::focal(rrs, w=matrix(1,3,3),  fun=mean, na.rm=T, NAonly=T)
+    terra::writeRaster(r2, filename=tmpRpath, overwrite=T)
+  }else{
+    print('Not filling holes')
   }
   
-  if(!is.null(maskTemplate))
+  if(applyMask)
   {
     print('Applying mask ......')
     terraOptions(memmax=10)
     tr <- terra::rast(tmpRpath)
-    # if(is.null(tr)){
-    #   tr <- terra::rast(inRasterPath)
-    # }
-    templateMR <- terra::rast(maskTemplate)
-    #tr <- doMask(inRaster=tr, maskTemplate=templateMR, filename=tmpRpath, overwrite=T)
-  
-    mR <- terra::mask(tr, templateMR)
-  }
-  
-  
-  
-  if(is.null(mR)){
-    print(paste0('Making copy of ', basename(inRasterPath), ' to ', tmpRpath))
-    file.copy(from=inRasterPath, to=tmpRpath, overwrite = T)
+    mR <- terra::mask(tr, templateR)
+    terra::writeRaster(mR, filename=tmpRpath, overwrite=T)
   }else{
-    
-    if(adjustVal != 1){
-      print('Adjusting values.....')
-      print(paste0('Applying value adjustment of ', adjustVal))
-      mRA <- mR * adjustVal   ####  adjust value to percent
-    }else{
-      mRA <- mR
-    }
-    print(paste0('Writing raster ', tmpRpath))
-    writeRaster(mRA, tmpRpath, overwrite=TRUE, gdal=c("COMPRESS=NONE", "TILED=NO"))
+    print('Not applying mask')
   }
   
-  #####3 Implement significant figures
+    if(adjustVal != 1){
+      print(paste0('Applying value adjustment of ', adjustVal))
+      mR <- terra::rast(tmpRpath)
+      mRA <- mR * adjustVal  
+      terra::writeRaster(mRA, filename=tmpRpath, overwrite=T)
+    }else{
+      print('Not adjusting values')
+    }
+ 
+  #, gdal=c("COMPRESS=NONE", "TILED=NO")
+  
+  ###### Set minimum value
+  if(!setMin ==- 1){
+    print(paste0('Setting minimum value to : ', setMin))
+    r <- rast(tmpRpath)
+    rmin <- terra::clamp(r, lower=0) 
+    writeRaster(rmin, tmpRpath, overwrite=TRUE)
+  }else{
+    print(paste0('Not setting minimum value'))
+  }
+  
+  ###### Implement significant figures
   if(sigFigures == -1){
     print(paste0('Not enforcing significant figures'))
    
   }else{
     r <- rast(tmpRpath)
     print(paste0('Enforcing ', sigFigures, ' Decimal places in output raster'))
-    if(sigFigures==0){
-        rr <- round(r,digits=0)
-        rr
-        writeRaster(rr,  tmpRpath, gdal=c("COMPRESS=NONE", "TILED=NO"), datatype='int1U', overwrite=T)
-    }else{
-      rr <- round(r,digits=sigFigures)
-      rr
-      writeRaster(rr, tmpRpath, gdal=c("COMPRESS=NONE", "TILED=NO"), datatype='FLT4S', overwrite=T)
-    }
+    rr <- round(r,digits=sigFigures)
+    writeRaster(rr, tmpRpath, overwrite=T)
   }
   
-
+ 
+  
+#  tmpRpath <- paste0('/scratch1/', ident, '/tmp/CFD_000_005_EV_N_P_AU_TRN_N_20221006_Dominant_Class.tif')
+  dtype='FLT4S'
+  if(isIntegerRaster){
+     print('Making integer raster')
+    dtype='INT2U'
+    # rr<- r*1
+    # raster::writeRaster(rr, tmpRpath, gdal=c("COMPRESS=NONE", "TILED=NO", "COPY_SRC_OVERVIEWS=NO"  ),  datatype='INT2U', overwrite=T)
+  }
+  # else{
+  #   print('Making floating point raster')
+  #   r <- raster(tmpRpath)
+  #   raster::writeRaster(r, tmpRpath, gdal=c("COMPRESS=NONE", "TILED=NO", "COPY_SRC_OVERVIEWS=NO"), datatype='FLT4S', overwrite=T)
+  # }
+  
+  r <- terra::rast(tmpRpath)
+  tfl <- paste0(tempfile(tmpdir = tmpDir), '.tif')
+  terra::writeRaster(r, tfl, gdal=c("COMPRESS=NONE", "TILED=NO", "COPY_SRC_OVERVIEWS=NO"), datatype=dtype, overwrite=T)
+  file.remove(tmpRpath)
+  file.rename(from=tfl, to=tmpRpath)
+  
+  
   ds = geo$gdal$Open(tmpRpath, geo$gdal$GA_Update)
   band<- ds$GetRasterBand(as.integer(1))
   
@@ -148,16 +152,16 @@ publishRaster  <- function(inRasterPath=NULL, outDir=NULL, resampleTemplate=NULL
     for (b in 1:nrow(metadataTable)) {
       itemName <- metadataTable[b,1]
       itemVal <- metadataTable[b,2]
-      if(itemName=='DATASET_TITLE'){
-        bn <- basename(inRasterPath)
-        bits <- str_split(bn, '_')
-        p <- bits[[1]][4]
-        d <- bits[[1]][3]
-        prodv <- prods[prods$code==p, 2]
-        depthv <- depths[depths$code==d, 2]
-        itemVal<- str_replace(itemVal, 'XXXX', depthv)
-        itemVal<- str_replace(itemVal, 'YYYY', prodv)
-      }
+      # if(itemName=='DATASET_TITLE'){
+      #   bn <- basename(inRasterPath)
+      #   bits <- str_split(bn, '_')
+      #   p <- bits[[1]][4]
+      #   d <- bits[[1]][3]
+      #   prodv <- prods[prods$code==p, 2]
+      #   depthv <- depths[depths$code==d, 2]
+      #   itemVal<- str_replace(itemVal, 'XXXX', depthv)
+      #   itemVal<- str_replace(itemVal, 'YYYY', prodv)
+      # }
       ds$SetMetadataItem(itemName,itemVal )
     }
     xml <- geo$gdal$Info(ds)
@@ -217,9 +221,9 @@ publishRaster  <- function(inRasterPath=NULL, outDir=NULL, resampleTemplate=NULL
 }
 
 generateCOG <- function(inRasterPath, outPath){
-  print('Generating COG')
-  #outfilename <- str_replace(dst_filename, '.tif', '_cog.tif')
+  print('Generating external overviews')
   system(paste0(gdalPath, '/gdaladdo --config GDAL_CACHEMAX 5000 -ro ',inRasterPath))
+  print('Generating COG')
   cmd <- paste0(gdalPath, '/gdal_translate ', inRasterPath, ' ', outPath ,' --config GDAL_CACHEMAX 5000 -stats -co TILED=YES -co COMPRESS=DEFLATE -co BIGTIFF=YES -co COPY_SRC_OVERVIEWS=YES' ) 
   system(cmd)
 }
