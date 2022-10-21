@@ -1,0 +1,19 @@
+DSM Workflow Example
+
+scripts located at - \\fs1-cbr.nexus.csiro.au\{af-digiscapesm}\work\Ross\SLGA\SLGA\Development\Ross\Scripts\DepthB
+
+HPC Job control - DepthB.R - Control the HPC scripts etc
+
+1.    FederatorExtractionsDepthB.R – extract required data from the SoilDataFederator
+2.    HPCDrillCovariates.R - Drill the covariate mosaics per tile on the HPC
+3.    combineDrills.R - combine the above into a single model input dataframe
+3.5  makeRFmodel.R - make a single RF model using inputs from above
+4.    RFProcessingBootstrapping.R - make bootstrapped model iterations - serial
+4.5  RFProcessingBootstrappingHPC.R - make bootstrapped model iterations - parallel on HPC
+5.    HPCApplyRFModelToTile.R - apply random foest model to tiles to produce outputs
+6.    makeMosaics.R - stitch all the tiles together into a single mosaics
+
+resampleTotalDepth.R - miscellaneous
+splineRasters.R - miscellaneous      
+
+
