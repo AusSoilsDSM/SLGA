@@ -1,0 +1,192 @@
+FertYN,Primary,Tertiary,Name
+1,1,1.1.0,Nature conservation
+1,1,1.1.1,Strict nature reserves
+1,1,1.1.2,Wilderness area
+1,1,1.1.3,National park
+1,1,1.1.4,Natural feature protection
+1,1,1.1.5,Habitat/species management area
+1,1,1.1.6,Protected landscape
+1,1,1.1.7,Other conserved area
+1,1,1.2.0,Managed resource protection
+1,1,1.2.1,Biodiversity
+1,1,1.2.2,Surface water supply
+1,1,1.2.3,Groundwater
+1,1,1.2.4,Landscape
+1,1,1.2.5,Traditional indigenous uses
+1,1,1.3.0,Other minimal use
+1,1,1.3.1,Defence land - natural areas
+1,1,1.3.2,Stock route
+1,1,1.3.3,Residual native cover
+1,1,1.3.4,Rehabilitation
+1,2,2.1.0,Grazing native vegetation
+1,2,2.2.0,Production native forests
+1,2,2.2.1,Wood production forestry
+1,2,2.2.2,Other forest production
+2,3,3.1.0,Plantation forests
+2,3,3.1.1,Hardwood plantation forestry
+2,3,3.1.2,Softwood plantation forestry
+2,3,3.1.3,Other forest plantation
+2,3,3.1.4,Environmental forest plantation
+2,3,3.2.0,Grazing modified pastures
+2,3,3.2.1,Native/exotic pasture mosaic
+2,3,3.2.2,Woody fodder plants 
+2,3,3.2.3,Pasture legumes
+2,3,3.2.4,Pasture legume/grass mixtures
+2,3,3.2.5,Sown grasses
+2,3,3.3.0,Cropping
+2,3,3.3.1,Cereals
+2,3,3.3.2,Beverage and spice crops
+2,3,3.3.3,Hay and silage 
+2,3,3.3.4,Oilseeds
+2,3,3.3.5,Sugar
+2,3,3.3.6,Cotton
+2,3,3.3.7,Alkaloid poppies
+2,3,3.3.8,Pulses
+2,3,3.4.0,Perennial horticulture
+2,3,3.4.1,Tree fruits
+2,3,3.4.2,Olives
+2,3,3.4.3,Tree nuts
+2,3,3.4.4,Vine fruits
+2,3,3.4.5,Shrub berries and fruits
+2,3,3.4.6,Perennial flowers and bulbs
+2,3,3.4.7,Perennial vegetables and herbs
+2,3,3.4.8,Citrus
+2,3,3.4.9,Grapes
+2,3,3.5.0,Seasonal horticulture
+2,3,3.5.1,Seasonal fruits 
+2,3,3.5.2,Seasonal flowers and bulbs
+2,3,3.5.3,Seasonal vegetables and herbs
+2,3,3.6.0,Land in transition
+2,3,3.6.1,Degraded land
+2,3,3.6.2,Abandoned land
+2,3,3.6.3,Land under rehabilitation
+2,3,3.6.4,No defined use
+2,3,3.6.5,Abandoned perennial horticulture
+2,4,4.1.0,Irrigated plantation forests
+2,4,4.1.1,Irrigated hardwood plantation forestry
+2,4,4.1.2,Irrigated softwood plantation forestry
+2,4,4.1.3,Irrigated other forest plantation
+2,4,4.1.4,Irrigated environmental forest plantation
+2,4,4.2.0,Grazing irrigated modified pastures
+2,4,4.2.1,Irrigated woody fodder plants
+2,4,4.2.2,Irrigated pasture legumes
+2,4,4.2.3,Irrigated legume/grass mixtures
+2,4,4.2.4,Irrigated sown grasses
+2,4,4.3.0,Irrigated cropping
+2,4,4.3.1,Irrigated cereals
+2,4,4.3.2,Irrigated beverage and spice crops
+2,4,4.3.3,Irrigated hay and silage 
+2,4,4.3.4,Irrigated oilseeds
+2,4,4.3.5,Irrigated sugar
+2,4,4.3.6,Irrigated cotton
+2,4,4.3.7,Irrigated alkaloid poppies
+2,4,4.3.8,Irrigated pulses
+2,4,4.3.9,Irrigated rice
+2,4,4.4.0,Irrigated perennial horticulture
+2,4,4.4.1,Irrigated tree fruits
+2,4,4.4.2,Irrigated olives
+2,4,4.4.3,Irrigated tree nuts
+2,4,4.4.4,Irrigated vine fruits
+2,4,4.4.5,Irrigated shrub berries and fruits
+2,4,4.4.6,Irrigated  perennial flowers and bulbs
+2,4,4.4.7,Irrigated perennial vegetables and herbs
+2,4,4.4.8,Irrigated citrus
+2,4,4.4.9,Irrigated grapes
+2,4,4.5.0,Irrigated seasonal horticulture
+2,4,4.5.1,Irrigated seasonal fruits 
+2,4,4.5.2,Irrigated seasonal flowers and bulbs
+2,4,4.5.3,Irrigated seasonal vegetables and herbs
+2,4,4.5.4,Irrigated turf farming
+2,4,4.6.0,Irrigated land in transition
+2,4,4.6.1,Degraded irrigated land
+2,4,4.6.2,Abandoned irrigated land
+2,4,4.6.3,Irrigated land under rehabilitation
+2,4,4.6.4,No defined use - rrigation
+2,4,4.6.5,Abandoned irrigated perennial horticulture
+2,5,5.1.0,Intensive horticulture
+2,5,5.1.1,Production nurseries
+2,5,5.1.2,Shadehouses
+2,5,5.1.3,Glasshouses
+2,5,5.1.4,Glasshouses - hydroponic
+2,5,5.1.5,Abandoned intensive horticulture
+2,5,5.2.0,Intensive animal production
+2,5,5.2.1,Dairy sheds and yards
+2,5,5.2.2,Feedlots
+2,5,5.2.3,Poultry farms
+2,5,5.2.4,Piggeries
+2,5,5.2.5,Aquaculture
+2,5,5.2.6,Horse studs
+2,5,5.2.7,Saleyards/stockyards 
+2,5,5.2.8,Abandoned intensive animal production
+2,5,5.3.0,Manufacturing and industrial
+2,5,5.3.1,General purpose factory
+2,5,5.3.2,Food processing factory
+2,5,5.3.3,Major industrial complex
+2,5,5.3.4,Bulk grain storage
+2,5,5.3.5,Abattoirs
+2,5,5.3.6,Oil refinery
+2,5,5.3.7,Sawmill
+2,5,5.3.8,Abandoned manufacturing and industrial
+2,5,5.4.0,Residential and farm infrastructure
+2,5,5.4.1,Urban residential
+2,5,5.4.2,Rural residential with agriculture
+1,5,5.4.3,Rural residential without agriculture
+1,5,5.4.4,Remote communities
+1,5,5.4.5,Farm buildings/infrastructure
+2,5,5.5.0,Services
+2,5,5.5.1,Commercial services
+2,5,5.5.2,Public services
+2,5,5.5.3,Recreation and culture
+1,5,5.5.4,Defence facilities - urban
+1,5,5.5.5,Research facilities
+1,5,5.6.0,Utilities
+1,5,5.6.1,Fuel powered electricity generation
+1,5,5.6.2,Hydro electricity generation
+1,5,5.6.3,Wind electricity generation
+1,5,5.6.4,Solar electricity generation
+1,5,5.6.5,Electricity substations and transmission
+1,5,5.6.6,"Gas treatment, storage and transmission"
+1,5,5.6.7,Water extraction and transmission
+1,5,5.7.0,Transport and communication
+1,5,5.7.1,Airports/aerodromes
+1,5,5.7.2,Roads
+1,5,5.7.3,Railways
+1,5,5.7.4,Ports and water transport
+1,5,5.7.5,Navigation and communication
+1,5,5.8.0,Mining
+1,5,5.8.1,Mines
+1,5,5.8.2,Quarries
+2,5,5.8.3,Tailings
+1,5,5.8.4,Extractive Industry not in use
+2,5,5.9.0,Waste treatment and disposal
+2,5,5.9.1,Effluent pond
+2,5,5.9.2,Landfill
+1,5,5.9.3,Solid garbage
+2,5,5.9.4,Incinerators
+2,5,5.9.5,Sewage/sewerage
+1,6,6.1.0,Lake
+1,6,6.1.1,Lake - conservation
+1,6,6.1.2,Lake - production
+1,6,6.1.3,Lake - intensive use
+1,6,6.1.4,Lake - saline
+1,6,6.2.0,Reservoir/dam
+1,6,6.2.1,Reservoir
+2,6,6.2.2,Water storage - intensive use/farm dams
+2,6,6.2.3,Evaporation basin
+1,6,6.3.0,River
+1,6,6.3.1,River - conservation
+1,6,6.3.2,River - production
+1,6,6.3.3,River - intensive use
+2,6,6.4.0,Channel/aqueduct
+2,6,6.4.1,Supply channel/aqueduct
+2,6,6.4.2,Drainage channel/aqueduct
+2,6,6.4.3,Stormwater
+1,6,6.5.0,Marsh/wetland
+1,6,6.5.1,Marsh/wetland - conservation
+1,6,6.5.2,Marsh/wetland - production
+1,6,6.5.3,Marsh/wetland - intensive use
+1,6,6.5.4,Marsh/wetland - saline
+1,6,6.6.0,Estuary/coastal waters
+1,6,6.6.1,Estuary/coastal waters - conservation
+1,6,6.6.2,Estuary/coastal waters - production
+1,6,6.6.3,Estuary/coastal waters - intensive use
