@@ -1,0 +1,28 @@
+ACCESS_CONSTRAINTS,Creative Commons Attribution 4.0 (CC By)
+ACKNOWLEDGEMENTS,TERN acknowledges the important contributions of state and federal soil agencies for providing access to soil profile data sets.
+AREA_OR_POINT,Area
+COLLABORATING_ORGANISATIONS,University of Sydney;CSIRO;  The Australian Micro Biome
+COMPLETENESS,The Soil and Landscape Grid of Australia covers all of continental Australia and near coastal islands land areas
+CONTACT_EMAIL,esupport@tern.org.au
+CONTACT_ORGANISATION,Terrestrial Ecosystem Research Network (TERN)
+CONTACT_POSTAL,"Long Pocket Precinct, Foxtail Building #1019 Level 5 The University of Queensland 80 Meiers Road Indooroopilly QLD 4068 Australia"
+CONTACT_STREET_ADDRESS,"Long Pocket Precinct, Foxtail Building #1019 Level 5 The University of Queensland 80 Meiers Road Indooroopilly QLD 4068 Australia"
+CREDIT,"We would like to acknowledge the contribution of the Australian Microbiome consortium in the generation of data used in this publication. The Australian Microbiome initiative is supported by funding from Bioplatforms Australia and the Integrated Marine Observing System (IMOS) through the Australian Government’s National Collaborative Research Infrastructure Strategy (NCRIS), Parks Australia through the Bush Blitz program funded by the Australian Government and BHP, and the CSIRO"
+CUSTODIAN,University of Sydney
+DATASET_TITLE,Continental-scale mapping of soil bacteria and fungi beta diversity
+DATA_CREATION_DATE,6/10/2022
+DATA_END_DATE,1/01/2022
+DATA_START_DATE,1/01/1950
+DESCRIPTION,"Soil microorganisms mediate a wide range of key processes and ecosystem services on which humans depend. These products the biogeography and spatial pattern of soil biota for the Australian continent. We used as basis the DNA sequences from the Biome of Australia Soil Environments (BASE) which were collected over a range of different sites across Australia. We calculated the beta diversity of abundant taxa of soil bacteria and fungi, treating representative sequence data (OTUs) as individual taxa. Two ordination methods were applied to investigate the dissimilarities in microbial community composition, non-metric multidimensional scaling (NMDS) and Uniform Manifold Approximation and Projection (UMAP) for dimension reduction. We fitted a quantile regression forest machine learning model to exploit the quantitative relationship between point-estimated values of beta diversity and environmental covariates, and used to model to predict beta diversity across Australia along with an estimate of uncertainty. The resulting maps also reveal the pattern of soil biota which can further be used for regional assessment of soil biodiversity and from which degradation induced by global changes can be monitored. "
+JURISDICTION,Australia
+LICENCE,http://creativecommons.org/licenses/by/4.0/
+MAINTENANCE_AND_UPDATE_FREQUENCY,Not Planned
+POINT_OF_CONTACT_POSITION,mercedes.romandobarco@sydney.edu.au
+POSITIONAL_ACCURACY,The horizontal positional error is the same as for the raw SRTM 3 second data with 90% of tested locations within 7.2 m for Australia. See Rodriguez et al. (2006) for more information.
+PROGRESS,Complete
+PROJECT_DESCRIPTION,The TERN Soil and Landscape Grid of Australia Facility has produced a comprehensive fine-resolution grid of soil attributes and important land surface parameters. The data is consistent with the Specifications of the GlobalSoilMap and is managed as part of the Australian Soil Resource Information System (ASRIS).
+RELATED_LINKS_1,https://aussoilsdsm.esoil.io/slga-version-2-products/bacteria-and-fungi-beta-diversity
+RELATED_LINKS_2,https://www.australianmicrobiome.com/
+RELATED_LINKS_3,https://www.clw.csiro.au/aclep/soilandlandscapegrid/index.html
+STORED_DATA_FORMAT,Cloud Optimised Geotiff
+Units,NA
