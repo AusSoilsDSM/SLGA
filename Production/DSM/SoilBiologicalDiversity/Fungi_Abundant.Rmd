@@ -1,0 +1,586 @@
+---
+title: "Soil microbial biodiversity: Fungi abundant taxa"
+author: "Mercedes Roman"
+date: "2022-07-08"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  word_document: 
+    fig_width: 7
+    fig_height: 5
+---
+
+```{r packages, message=FALSE, warning=FALSE, include=FALSE, results='hide'}
+
+library(devtools)
+devtools::install_github("r-forge/countreg/pkg")
+devtools::install_github("gordy2x/ecoCopula", ref="e401671")
+
+library(rgdal)
+library(gdalUtils)
+library(raster)
+library(sp)
+library(sf)
+library(dplyr)
+library(tidyr)
+library(ggmap)
+library(ggplot2) 
+library(viridis) # color palettes
+library(scales)
+library(rasterVis)
+library(lattice)
+library(gridExtra)
+library(tmap)    # for static and interactive maps
+library(leaflet) # for interactive maps
+library(mapview) # for interactive maps
+library(shiny)   # for web applications
+library(foreach)
+library(doParallel)
+library(geosphere)
+library(gplots)
+library(colorspace)
+library(readr)
+library(vegan)
+library(readr)
+library(phyloseq)
+#install.packages("remotes")
+#remotes::install_github("mikemc/speedyseq")
+#library(phyloseqSparse) # Just use phyloseq with speedyseq add on (if using phyloseq)
+library(speedyseq)
+#library(tidyverse)
+#devtools::install_github("gordy2x/ecoCopula@topic/zero-inflated") 
+library(ecoCopula)
+#remotes::install_github("vmikk/metagMisc", force = TRUE)
+library(metagMisc)
+#install.packages("devtools")
+
+### Load the data
+InputDir <- "R:/PRJ-AusSoilMicrobes/Output/Fungi/"
+load(paste0(InputDir,"2_Abun_Rare_Fungi.RData" ))
+rm(rare.ps)
+
+```
+
+## Soil fungi - Abundant taxa
+
+We transformed the abundance data into relative abundance and calculated the average relative abundance of each OTU across all sites. The abundant taxa were defined as those from the top 1%, after ranking the OTUs by relative abundance, that occur in at least 10 % sites of sites or those OTUs that occurred in 50% of sites.The dominant taxa accounted mostly between 10-30 % of the OTUs present in the samples.These criteria resulted in 184 taxa across 1317 samples.
+
+```{r abun.ps}
+abun.ps
+```
+
+We will test three methods for analyzing the diversity: non-metric multidimensional scaling (NMDS), Copula ordination, and Umap.
+
+## NMDS
+
+First I perform a NMDS using Bray-Curtis dissimilarity metric on abundant taxa.
+
+```{r NMDS, echo=TRUE, message=FALSE, warning=FALSE,message=FALSE}
+
+set.seed(1812)
+Fungi.Abun.NMDS = ordinate(abun.ps, "NMDS", "bray",                
+                           ### Bray-Curtis dissimilarity
+                           k=3,                                       
+                           ### 3 dimensions
+                           try=20, trymax=2000,                       
+                           ### Min 20 random starts, max 2000
+                           maxit=2000,                                
+                           ### Try 5000 iterations at each start
+                           smin = 0.05,                               
+                           ### I would accept a stress of 0.1, the structure of the community is well represented so I set the threshold in 0.05.
+                           trace = FALSE, plot=FALSE)
+
+
+```
+
+
+```{r Fungi.Abun.NMDS}
+Fungi.Abun.NMDS
+plot(Fungi.Abun.NMDS)
+
+```
+```{r, include=FALSE}
+gc()
+
+```
+
+
+
+```{r NMDS_plot, echo=FALSE, message=FALSE, warning=FALSE}
+
+### Let's see the geographical pattern
+library(gridExtra)
+theme_set(theme_bw())
+p1 = plot_ordination(abun.ps, Fungi.Abun.NMDS, type="taxa", color="Phylum", title="taxa") + scale_color_viridis(discrete = TRUE, option="C", direction = -1);p1
+p2 = plot_ordination(abun.ps, Fungi.Abun.NMDS, type="samples", color="Organic.Carbon....") + scale_color_viridis(discrete = FALSE, option="A", direction = -1);p2
+p3 = plot_ordination(abun.ps, Fungi.Abun.NMDS, type="samples", color="Ph.Solid.H2o") + scale_color_viridis(discrete = FALSE,option="D", direction = -1);p3
+p4 = plot_ordination(abun.ps, Fungi.Abun.NMDS, type="samples", color="Ph.Solid.H2o", axes = c(1,3)) + scale_color_viridis(discrete = FALSE,option="D", direction = -1);p4
+
+gc()
+
+```
+
+The stress of the NMDS is 0.158, suggesting that the structure of the data has been captured fairly.
+
+
+```{r ausmap, message=FALSE, warning=FALSE, include=FALSE}
+
+### Plot NMDS results (coordinates)
+AusMap <- get_stamenmap(bbox = c(left=110, bottom=-45, right=157, top=-8),
+                        maptype="toner-lite", zoom=5,
+                        source="stamen", crop=TRUE)
+
+```
+
+The NMDS scores follow different spatial patterns. The first NMDS axis seem to follow a latitudinal as well as a coastal-inland direction, the second NMDS axis seems to follow the soil pH gradient
+
+```{r NMDS_map_points, echo=FALSE, message=FALSE, warning=FALSE}
+
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=NMDS1), data = p2$data) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=NMDS2), data = p2$data) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=NMDS3), data = p4$data) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+
+```
+
+I save the NMDS scores into a separate dataframe with the context data, and it is saved in "fungi_abun_nmds_scores.RData".
+
+```{r NMDS scores df, echo=FALSE, message=FALSE, warning=FALSE}
+### I extract the scores directly from the plot_ordination output
+nmds.scores <- p2$data
+nmds.scores$NMDS3 <- p4$data$NMDS3 
+
+### Reorder the columns and print first columns and rows
+first.ones <- c("NMDS1", "NMDS2", "NMDS3","Latitude","Longitude","Depth_Int")
+nmds.scores <- nmds.scores[,c(1,2,120,63,66,119,which(!names(nmds.scores) %in% first.ones))]
+head(nmds.scores[,first.ones])
+
+setwd("C:/Users/mrom8073/OneDrive - The University of Sydney (Staff)/SoilMicrobialBiodiversity/Presentations")
+save(nmds.scores, file="fungi_abun_nmds_scores.RData")
+
+
+```
+
+
+## Copulas models
+
+Copulas are a flexible way to estimate the covariance matrix for species 1 ... n in samples 1 ... j 
+Copulas can then be used to generated latent factors. These factors can akin to NDMS.
+Benefits - we generate the copulas from residuals of generalised linear models.
+This means we can fit any GLM to the data to fit its distribution and we can account for covariates or confounders in the model. 
+
+For the copulas we test negative binomial (NB) or zero-inflated negative binomial (ZINB) for abundance taxa. We selected the models with the minimum AIC – to keep it simple. For this approach we chose one model formula to use on every taxa – the model that has the lowest AIC across the greatest number of taxa.
+
+For the functions of the ecoCopulas package, I extract the OTU table from the phyloseq object and transpose it, to have samples as rows and OTUs as columns.But the binomialnegative and the xero-inflated negative binomial work with integer data, so I bring the total abdundance phyloseq objects
+
+```{r}
+
+InputDir <- "R:/PRJ-AusSoilMicrobes/Output/Fungi/"
+load(paste0(InputDir,"1_AbsoluteAbunFungi.RData"))
+ps_srf.r
+
+```
+```{r include=FALSE}
+gc()
+```
+
+
+Subset in the abundance data the taxa and samples present in the abundant-taxa phyloseq object
+
+```{r}
+
+abunA.ps <- prune_taxa(taxa_names(ps_srf.r)%in% taxa_names(abun.ps),ps_srf.r)
+abunA.ps <- prune_samples(sample_sums(abunA.ps)>0, abunA.ps)
+abunA.ps
+
+```
+
+I also create a factor indicating the origin of the data (BASE and GA), extract the context data into a separate dataframe and change the rownames to something more simple.
+
+```{r prepare_data}
+
+#Prepare the data in the format for the copulas models
+ta <- abunA.ps %>% otu_table %>% as.matrix() %>% t() %>% as.data.frame()
+ta[1:10,1:10]
+
+context.data <- data.frame(sample_data(abunA.ps))
+context.data$Dataset <- ifelse(is.na(context.data$Ph.Solid.H2o), "GA", "BASE")
+rownames(context.data) <- 1:nrow(context.data)
+rownames(ta) <- 1:nrow(ta)
+
+```
+
+I fit models with the negative binomial distribution and relative abundance as response variable, including an offset with the number of sequences to transform to relative abundance. I test whether including the dataset of origin and depth interval improve the model.
+
+```{r negative binomial, echo=TRUE, message=FALSE, warning=FALSE}
+
+context.data$seqs<- log(rowSums(ta))
+
+sdm_Nbinomial <- 
+  stackedsdm(ta, formula_X = ~1+ offset(seqs),
+                 context.data,
+                 family="negative.binomial", ncores = 7 )
+
+sdm_Nbinomial_2 <- 
+  stackedsdm(ta, formula_X = ~ 1 + Depth_Int + Dataset+ offset(seqs),
+                 context.data,
+                 family="negative.binomial", ncores = 7 )
+gc()
+
+```
+
+```{r copula_ordination1, echo=TRUE, message=FALSE, warning=FALSE}
+
+## plot residuals of models
+plot(sdm_Nbinomial)
+
+# Fit copula ordination 
+abun_lv=cord(sdm_Nbinomial)
+
+```
+
+
+```{r plot_ccord, echo=FALSE}
+#Plot
+data.origin <- ifelse(context.data$Dataset=="GA", "darkcyan", "orange") 
+plot(abun_lv, site.col=data.origin)
+
+```
+```{r include=FALSE}
+gc()
+```
+
+We can check the optimal number of latent factors, up to a number that we consider may be useful to map (maximum 5). We check the BIC of the ordination for 2 to 5 latent factors.
+
+```{r optimal_lv, echo=TRUE, message=FALSE, warning=FALSE}
+
+library(purrr)
+
+#max_lv<- ncol(ra)-1 
+
+lvs<- c(2,3,4,5)
+
+cords<-
+  map(lvs,
+      function(lv){
+        cord(sdm_Nbinomial, nlv=lv)
+})
+
+best_fit = map_dbl(cords, ~ .x$BIC) %>% which.min()
+
+map_dbl(cords, ~ .x$BIC)
+print(best_fit)
+
+
+```
+
+```{r include=FALSE}
+gc()
+```
+
+#### Visualize the latent factors
+
+```{r ltf_map_points, echo=FALSE, message=FALSE, warning=FALSE}
+
+abun_lv=cord(sdm_Nbinomial)
+ltnV <- as.data.frame(abun_lv$scores)
+ltnV <- cbind(ltnV, context.data)
+
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Factor1), data = ltnV) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Factor2), data = ltnV) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+
+```
+
+
+Now we check the residuals and ordination plot of the models fitted including depth and dataset as explanatory variables. The residuals indicate heterogeneity in variance when plotted against the fitted values, generally higher residuals for smaller fitted relative abundance.
+
+```{r copula_ordination origin and depth, echo=FALSE, message=FALSE, warning=FALSE}
+
+## plot residuals of models
+plot(sdm_Nbinomial_2)
+
+# Fit copula ordination 
+abun_lv=cord(sdm_Nbinomial_2)
+
+plot(abun_lv, site.col=data.origin)
+
+```
+
+```{r include=FALSE}
+gc()
+```
+
+Again, we check the number of optimal latent variables, as well as the BIC for the different ordinations
+
+
+```{r optimal_lv_NB2, echo=TRUE, message=FALSE, warning=FALSE}
+
+lvs<- c(2,3,4,5)
+
+cords<-
+  map(lvs,
+      function(lv){
+        cord(sdm_Nbinomial_2, nlv=lv)
+})
+
+best_fit = map_dbl(cords, ~ .x$BIC) %>% which.min()
+
+map_dbl(cords, ~ .x$BIC)
+print(best_fit)
+
+
+```
+
+And we plot the factors with their coordinates
+
+
+```{r lvNB2_map_points, echo=FALSE, message=FALSE, warning=FALSE}
+
+#abun_lv=cord(sdm_Nbinomial_2)
+ltnV <- as.data.frame(abun_lv$scores)
+ltnV <- cbind(ltnV, context.data)
+
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Factor1), data = ltnV) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Factor2), data = ltnV) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+
+```
+```{r include=FALSE}
+gc()
+```
+
+
+```{r}
+
+#Save up to this point
+#save.image("C:/Users/mrom8073/OneDrive - The University of Sydney (Staff)/SoilMicrobialBiodiversity/Presentations/Fungi.Abun.Rdata.RData")
+
+```
+
+
+#### Zero-inflated negative binomial distribution
+
+
+```{r ZI negative binomial, echo=TRUE, message=FALSE, warning=FALSE}
+
+### Fit the ZINB models
+
+sdm_Zi <- 
+  stackedsdm(ta, formula_X = ~1+ offset(seqs),
+                 context.data,
+                 family="zinegative.binomial", ncores = 7)
+
+sdm_Zi_2 <- 
+  stackedsdm(ta, formula_X = ~ 1 + Depth_Int + Dataset + offset(seqs),
+                 context.data,
+                 family="zinegative.binomial", ncores = 7)
+
+```
+
+
+```{r copula_ordination_ZINB2, echo=TRUE, message=FALSE, warning=FALSE}
+
+# Fit copula ordination 
+library(countreg)
+abun_lv=cord(sdm_Zi_2)
+
+```
+
+We plot the ordination plot of the zero-inflated negative binomial distribution controlling for depth and dataset or origin.
+
+```{r plot_ccord zinegative.binomial}
+
+plot(abun_lv, site.col=data.origin)
+
+```
+
+```{r optimal_lv_ZI2, echo=TRUE, message=FALSE, warning=FALSE}
+
+library(purrr)
+lvs<- c(2,3,4,5)
+
+cords<-
+  map(lvs,
+      function(lv){
+        cord(sdm_Zi_2,nlv=lv)
+})
+
+map_dbl(cords, ~ .x$BIC)
+best_fit = map_dbl(cords, ~ .x$BIC) %>% which.min()
+print(best_fit)
+gc()
+
+```
+```{r include=FALSE}
+gc()
+```
+
+
+
+```{r lvNBZ2_map_points, echo=FALSE, message=FALSE, warning=FALSE}
+
+#abun_lv=cord(sdm_Zi_2)
+ltnV <- as.data.frame(abun_lv$scores)
+ltnV <- cbind(ltnV, context.data)
+
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Factor1), data = ltnV) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Factor2), data = ltnV) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+
+gc()
+
+```
+
+
+## UMAP
+
+```{r umap_bray, echo=TRUE, message=FALSE, warning=FALSE}
+
+library(umap)
+### I calculate first Bray distances
+
+#Prepare the relative abundance in the right format
+ra <- abun.ps %>% otu_table %>% as.matrix() %>% t() %>% as.data.frame()
+ra[1:10,1:10]
+
+bray.dist <- vegan::vegdist(ra, "bray")
+
+### Tune parameters
+custom.config = umap.defaults
+custom.config$n_components=3
+custom.config$random_state = 1984
+
+### Perform UMAP
+fungi.umap = umap(as.matrix(bray.dist),config=custom.config, input="dist")
+
+### Plot
+umap.context <- sample_data(abun.ps)
+umap.context$Dataset <- ifelse(is.na(umap.context$Ph.Solid.H2o), "GA", "BASE")
+umap.context$Dataset <- as.factor(umap.context$Dataset)
+
+### Attach the umap scores
+umap.context$Umap1 <- fungi.umap$layout[,1]
+umap.context$Umap2 <- fungi.umap$layout[,2]
+umap.context$Umap3 <- fungi.umap$layout[,3]
+
+data.origin <- ifelse(umap.context$Dataset=="GA", "darkcyan", "orange") 
+
+plot(x=umap.context$Umap1, y=umap.context$Umap2 , col=data.origin, pch=19, xlab="UMAP 1", ylab="UMAP2",
+     main="UMAP visualization with Bray distance - Relative abundance Fungi")
+plot(x=umap.context$Umap1, y=umap.context$Umap3 , col=data.origin, pch=19, xlab="UMAP 1", ylab="UMAP3",
+     main="UMAP visualization with Bray distance - Relative abundance Fungi")
+
+```
+
+
+```{r umap_bray_map}
+
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Umap1), data = umap.context) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Umap2), data = umap.context) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Umap3), data = umap.context) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+
+### Save
+save(umap.context, file="Fungi.umap.bray.RData")
+
+```
+
+
+```{r  umap_ra, echo=TRUE, message=FALSE, warning=FALSE}
+
+### Tune parameters
+custom.config = umap.defaults
+custom.config$n_components=3
+custom.config$random_state = 1984
+
+fungi.umap2 = umap(ra, config=custom.config)
+
+### Plot
+umap.context <- sample_data(abun.ps)
+umap.context$Dataset <- ifelse(is.na(umap.context$Ph.Solid.H2o), "GA", "BASE")
+umap.context$Dataset <- as.factor(umap.context$Dataset)
+
+### Attach the umap scores
+umap.context$Umap1 <- fungi.umap2$layout[,1]
+umap.context$Umap2 <- fungi.umap2$layout[,2]
+umap.context$Umap3 <- fungi.umap2$layout[,3]
+
+data.origin <- ifelse(umap.context$Dataset=="GA", "darkcyan", "orange") 
+
+plot(x=umap.context$Umap1, y=umap.context$Umap2 , col=data.origin, pch=19, xlab="UMAP 1", ylab="UMAP2",
+     main="UMAP visualization with Euclidean distance - Relative abundance Fungi")
+plot(x=umap.context$Umap1, y=umap.context$Umap3 , col=data.origin, pch=19, xlab="UMAP 1", ylab="UMAP3",
+     main="UMAP visualization with Euclidean distance - Relative abundance Fungi")
+
+
+```
+
+
+```{r umap_ra_map}
+
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Umap1), data = umap.context) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Umap2), data = umap.context) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Umap3), data = umap.context) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+
+```
+
+
+```{r umap_ta, echo=TRUE, message=FALSE, warning=FALSE}
+
+### Tune parameters
+custom.config = umap.defaults
+custom.config$n_components=3
+custom.config$random_state = 1984
+
+fungi.umap3 = umap(ta,config=custom.config)
+
+### Plot
+umap.context <- sample_data(abun.ps)
+umap.context$Dataset <- ifelse(is.na(umap.context$Ph.Solid.H2o), "GA", "BASE")
+umap.context$Dataset <- as.factor(umap.context$Dataset)
+
+### Attach the umap scores
+umap.context$Umap1 <- fungi.umap3$layout[,1]
+umap.context$Umap2 <- fungi.umap3$layout[,2]
+umap.context$Umap3 <- fungi.umap3$layout[,3]
+
+data.origin <- ifelse(umap.context$Dataset=="GA", "darkcyan", "orange") 
+
+plot(x=umap.context$Umap1, y=umap.context$Umap2 , col=data.origin, pch=19, xlab="UMAP 1", ylab="UMAP2",
+     main="UMAP visualization with Euclidean distance - Total abundance Fungi")
+plot(x=umap.context$Umap1, y=umap.context$Umap3 , col=data.origin, pch=19, xlab="UMAP 1", ylab="UMAP3",
+     main="UMAP visualization with Euclidean distance - Total abundance Fungi")
+
+```
+
+
+
+```{r umap_ta_map, echo=FALSE}
+
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Umap1), data = umap.context) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Umap2), data = umap.context) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Umap3), data = umap.context) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+
+```
+
+
+```{r save image, echo=TRUE}
+save.image("C:/Users/mrom8073/OneDrive - The University of Sydney (Staff)/SoilMicrobialBiodiversity/Presentations/Fungi.Abun.3Analyses.RData")
+#load("C:/Users/mrom8073/OneDrive - The University of Sydney (Staff)/SoilMicrobialBiodiversity/Presentations/Fungi.Abun.3Analyses.RData")
+
+```

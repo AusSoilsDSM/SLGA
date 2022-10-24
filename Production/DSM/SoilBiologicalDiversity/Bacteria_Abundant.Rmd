@@ -1,0 +1,444 @@
+---
+title: 'Soil microbial biodiversity: Bacteria abundant taxa'
+author: "Mercedes Roman"
+date: "`r Sys.Date()`"
+output: word_document
+---
+
+```{r, echo=FALSE,results='hide',message=FALSE,warning=FALSE}
+
+library(rgdal)
+library(gdalUtils)
+library(raster)
+library(sp)
+library(sf)
+library(dplyr)
+#library(tidyverse)
+library(tidyr)
+library(ggmap)
+library(ggplot2) 
+library(viridis) # color palettes
+library(scales)
+library(rasterVis)
+library(lattice)
+library(gridExtra)
+library(tmap)    # for static and interactive maps
+library(leaflet) # for interactive maps
+library(mapview) # for interactive maps
+library(shiny)   # for web applications
+library(foreach)
+library(doParallel)
+library(geosphere)
+library(gplots)
+library(colorspace)
+library(readr)
+library(vegan)
+library(readr)
+library(phyloseq)
+library(speedyseq)
+library(ecoCopula)
+library(metagMisc)
+
+### Load the data
+InputDir <- "R:/PRJ-AusSoilMicrobes/Output/Bacteria/"
+load(paste0(InputDir,"2_Rare_Abun_Bacteria.RData" ))
+rm(rare.ps)
+
+### Load Phylogenetic tree calculated in another script
+load(paste0(InputDir,"Abun_Phyloseq_and_Tree_16S.RData"))
+
+### And 
+load("C:/Users/mrom8073/OneDrive - The University of Sydney (Staff)/SoilMicrobialBiodiversity/Presentations/Bac.Abun.Rdata.RData")
+
+### Also the total counts
+InputDir <- "R:/PRJ-AusSoilMicrobes/Output/Bacteria/"
+load(paste0(InputDir,"1_AbsoluteAbun.RData"))
+
+InputDir <- "R:/PRJ-AusSoilMicrobes/Output/Bacteria/"
+OutDir <- "R:/PRJ-AusSoilMicrobes/Output/Bacteria/"
+
+```
+
+## Soil bacteria - Abundant taxa
+
+We transformed the abundance data into relative abundance and calculated the average relative abundance of each OTU across all sites. The abundant taxa were defined as those from the top 1%, after ranking the OTUs by relative abundance, that occur in at least 10 % sites of sites or those OTUs that occurred in 50% of sites.The dominant taxa accounted mostly between 10-30 % of the OTUs present in the samples.Theese criteria resulted in 2063 taxa accross 1373 samples.
+
+```{r}
+abun.ps
+```
+We will test three methods for analyzing the biodiversity: non-metric multidimensional scaling (NMDS), Copula ordination, and Umap.
+
+
+### NMDS
+
+First I perform a NMDS using Bray-Curtis dissimilarity metric on abundant taxa.
+
+```{r}
+
+set.seed(1812)
+Bacteria.Abun.NMDS = ordinate(abun.ps, "NMDS", "bray",                
+                           ### Bray-Curtis dissimilarity
+                           k=3,                                       
+                           ### 3 dimensions
+                           try=20, trymax=2000,                       
+                           ### Min 20 random starts, max 2000
+                           maxit=5000,                                
+                           ### Try 5000 iterations at each start
+                           smin = 0.05,                               
+                           ### I would accept a stress of 0.1, the structure of the community is well represented so I set the threshold in 0.05.
+                           trace = FALSE, plot=FALSE)
+Bacteria.Abun.NMDS
+save(Bacteria.Abun.NMDS,file=paste0(OutDir,"Bacteria.Abun.NMDS.RData"))
+
+```
+
+```{r NMDS_plot, echo=FALSE, message=FALSE, warning=FALSE}
+
+### Let's see the geographical pattern
+library(gridExtra)
+theme_set(theme_bw())
+p1 = plot_ordination(abun.ps, Bacteria.Abun.NMDS, type="taxa", color="Phylum", title="taxa") + scale_color_viridis(discrete = TRUE, option="D", direction = -1)
+p2 = plot_ordination(abun.ps, Bacteria.Abun.NMDS, type="samples", color="Organic.Carbon....") + scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+p3 = plot_ordination(abun.ps, Bacteria.Abun.NMDS, type="samples", color="Ph.Solid.H2o") + scale_color_viridis(discrete = FALSE,option="A", direction = -1)
+p4 = plot_ordination(abun.ps, axes = c(1,3), Bacteria.Abun.NMDS, type="samples", color="Ph.Solid.H2o") + scale_color_viridis(discrete = FALSE,option="A", direction = -1)
+p1
+p2
+p3
+p4
+
+```
+
+The stress of the NMDS is 0.11, suggesting that the structure of the data has been captured relatively well.
+
+
+```{r ausmap, message=FALSE, warning=FALSE, include=FALSE}
+
+### Plot NMDS results (coordinates)
+AusMap <- get_stamenmap(bbox = c(left=110, bottom=-45, right=157, top=-8),
+                        maptype="toner-lite", zoom=5,
+                        source="stamen", crop=TRUE)
+
+```
+
+There are some spatial patterns, which would be interesting to know if they respond to environmental facotrs, latitude gradient, or dataset of origin (BASE or GA).
+
+```{r NMDS_map_points, echo=FALSE, message=FALSE, warning=FALSE}
+
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=NMDS1), data = p2$data) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=NMDS2), data = p2$data) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+#grid.arrange(m1, m2, ncol = 2, nrow = 1)
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=NMDS3), data = p4$data) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+
+```
+
+
+#### NMDS with weighted unifrac distance
+
+Instead of running the NMDS with weighted unifrac distance directly in physoleq, I first calculate the weighted unifrac distance with phyloseq and the NMDS with the vegan package so I can set my preferred parameters. This NMDS analysis does find a convergent solution with a stress of 0.09, which indicates that the structure of the data has been captured well.
+
+```{r wunifrac nmds vegan, echo=TRUE, message=FALSE, warning=FALSE}
+
+### Plot the tree
+plot(fitGTR$tree, cex=0.1)
+
+
+cl <- makeCluster(6)
+registerDoParallel(cl)
+set.seed(2665)
+uf_BacAbun <- UniFrac(Bac_tree, weighted=TRUE, normalized=TRUE, parallel=TRUE, fast=TRUE)
+stopCluster(cl)
+
+class(uf_BacAbun)
+dim(uf_BacAbun)
+
+set.seed(5436)
+nmds.wuf <- vegan::metaMDS(comm = uf_BacAbun, k = 3, 
+                           try = 50, trymax = 2000,
+                           trace = FALSE, 
+                           plot = FALSE, 
+                           maxit=2000,
+                           smin = 0.05)
+
+nmds.wuf
+
+ordiplot(nmds.wuf)
+
+```
+
+
+
+```{r echo=FALSE}
+
+### Extract scores
+nmds.scores <- nmds.wuf$points
+context.abun.bac <- sample_data(Bac_tree)
+nmds.wuf.context <- cbind(nmds.scores,context.abun.bac)
+
+### Plot the scores on a map
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=MDS1), data = nmds.wuf.context) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+### eliminate the outlier in MDS2
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=MDS2), data = nmds.wuf.context[nmds.wuf.context$MDS2<0.4,]) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=MDS3), data = nmds.wuf.context) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+
+
+save(uf_BacAbun,nmds.wuf,nmds.wuf.context, file=paste0(OutDir,"Bacteria.nmds.wuf.RData"))
+
+```
+
+## Copulas models
+
+We start by bringing the total counts 
+
+```{r otu_abun, echo=TRUE}
+
+ps_srf.r
+
+abunA.ps <- prune_taxa(taxa_names(ps_srf.r)%in% taxa_names(Bac_tree),ps_srf.r)
+abunA.ps <- prune_samples(sample_sums(abunA.ps)>0, abunA.ps)
+abunA.ps
+
+#Prepare the data in the format for the copulas models
+ta <- abunA.ps %>% otu_table %>% as.matrix() %>% t() %>% as.data.frame()
+ta[1:10,1:10]
+
+context.data <- data.frame(sample_data(abunA.ps))
+context.data$Dataset <- ifelse(is.na(context.data$Ph.Solid.H2o), "GA", "BASE")
+rownames(context.data) <- 1:nrow(context.data)
+rownames(ta) <- 1:nrow(ta)
+
+```
+
+```{r negative binomial, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+
+context.data$seqs<- log(rowSums(ta))
+
+sdm_Nbinomial <- 
+  stackedsdm(ta, formula_X = ~1 + offset(seqs),
+                 context.data,
+                 family="negative.binomial", ncores = 7 )
+
+sdm_Nbinomial_2 <- 
+  stackedsdm(ta, formula_X = ~1 + Depth_Int + Dataset + offset(seqs),
+                 context.data,
+                 family="negative.binomial", ncores = 7 )
+gc()
+
+```
+
+```{r copula_ordination1, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+
+## plot residuals of models
+#(sdm_Nbinomial)
+
+# Fit copula ordination 
+abun_lv=cord(sdm_Nbinomial)
+
+```
+
+
+```{r plot_ccord, eval=FALSE, include=FALSE}
+#Plot
+data.origin <- ifelse(context.data$Dataset=="GA", "darkcyan", "orange") 
+plot(abun_lv, site.col=data.origin)
+```
+```{r include=FALSE}
+gc()
+```
+
+We can check the optimal number of latent factors, up to a number that we consider may be useful to map (maximum 5). We check the BIC of the ordination for 2 to 5 latent factors.
+
+```{r optimal_lv, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+
+library(purrr)
+
+#max_lv<- ncol(ra)-1 
+
+lvs<- c(2,3,4,5)
+
+cords<-
+  map(lvs,
+      function(lv){
+        cord(sdm_Nbinomial, nlv=lv)
+})
+
+best_fit = map_dbl(cords, ~ .x$BIC) %>% which.min()
+
+map_dbl(cords, ~ .x$BIC)
+print(best_fit)
+
+
+```
+
+#### Visualize the latent factors
+
+```{r ltf_map_points, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+
+abun_lv=cord(sdm_Nbinomial)
+ltnV <- as.data.frame(abun_lv$scores)
+ltnV <- cbind(ltnV, context.data)
+
+m1 <- ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Factor1), data = ltnV) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1);m1
+m2 <- ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Factor2), data = ltnV) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1);m2
+
+```
+
+
+
+## UMAP
+
+```{r umap_wunifrac, echo=TRUE, message=FALSE, warning=FALSE}
+
+library(umap)
+
+### Tune parameters
+custom.config = umap.defaults
+custom.config$n_components=3
+custom.config$random_state = 1984
+bacteria.umap = umap(as.matrix(uf_BacAbun),config=custom.config, input="dist")
+
+### Plot
+umap.context <- sample_data(Bac_tree)
+umap.context$Dataset <- ifelse(is.na(umap.context$Ph.Solid.H2o), "GA", "BASE")
+umap.context$Dataset <- as.factor(umap.context$Dataset)
+
+### Attach the umap scores
+umap.context$Umap1 <- bacteria.umap$layout[,1]
+umap.context$Umap2 <- bacteria.umap$layout[,2]
+umap.context$Umap3 <- bacteria.umap$layout[,3]
+#with(nmds.wuf.context, levels(Dataset))
+
+data.origin <- ifelse(umap.context$Dataset=="GA", "darkcyan", "orange") 
+
+plot(x=umap.context$Umap1, y=umap.context$Umap2 , col=data.origin, pch=19, xlab="UMAP 1", ylab="UMAP2")
+plot(x=umap.context$Umap1, y=umap.context$Umap3 , col=data.origin, pch=19, xlab="UMAP 1", ylab="UMAP3")
+
+save(bacteria.umap,umap.context, file=paste0(OutDir,"Bacteria.umap.wuf.RData"))
+
+```
+
+
+```{r umap_wunifrac_map}
+
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Umap1), data = umap.context) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Umap2), data = umap.context) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Umap3), data = umap.context) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+
+
+```
+
+
+```{r umap_bray, echo=TRUE, message=FALSE, warning=FALSE}
+
+### I calculate first Bray distances
+
+#Prepare the relative abundance in the right format
+ra <- Bac_tree %>% otu_table %>% as.matrix() %>% t() %>% as.data.frame()
+ra[1:10,1:10]
+
+bray.dist <- vegan::vegdist(ra, "bray")
+
+library(umap)
+### Tune parameters
+custom.config = umap.defaults
+custom.config$n_components=3
+custom.config$random_state = 1984
+
+### Perform UMAP
+bacteria.umap.bray = umap(as.matrix(bray.dist),config=custom.config, input="dist")
+
+### Plot
+umap.context <- sample_data(Bac_tree)
+umap.context$Dataset <- ifelse(is.na(umap.context$Ph.Solid.H2o), "GA", "BASE")
+umap.context$Dataset <- as.factor(umap.context$Dataset)
+
+### Attach the umap scores
+umap.context$Umap1 <- bacteria.umap.bray$layout[,1]
+umap.context$Umap2 <- bacteria.umap.bray$layout[,2]
+umap.context$Umap3 <- bacteria.umap.bray$layout[,3]
+#with(nmds.wuf.context, levels(Dataset))
+
+data.origin <- ifelse(umap.context$Dataset=="GA", "darkcyan", "orange") 
+
+plot(x=umap.context$Umap1, y=umap.context$Umap2 , col=data.origin, pch=19, xlab="UMAP 1", ylab="UMAP2",
+     main="UMAP visualization with Bray distance - Relative abundance Bacteria")
+plot(x=umap.context$Umap1, y=umap.context$Umap3 , col=data.origin, pch=19, xlab="UMAP 1", ylab="UMAP3",
+     main="UMAP visualization with Bray distance - Relative abundance Bacteria")
+
+save(bacteria.umap.bray,umap.context, file=paste0(OutDir,"Bacteria.umap.bray.RData"))
+
+```
+
+
+
+
+```{r umap_bray_map}
+
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Umap1), data = umap.context) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Umap2), data = umap.context) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Umap3), data = umap.context) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+
+```
+
+
+
+
+```{r  umap_ra_Eculidean, echo=TRUE, message=FALSE, warning=FALSE}
+
+### Tune parameters
+custom.config = umap.defaults
+custom.config$n_components=3
+custom.config$random_state = 1984
+
+bacteria.umap2 = umap(ra, config=custom.config)
+
+### Plot
+umap.context <- sample_data(Bac_tree)
+umap.context$Dataset <- ifelse(is.na(umap.context$Ph.Solid.H2o), "GA", "BASE")
+umap.context$Dataset <- as.factor(umap.context$Dataset)
+
+### Attach the umap scores
+umap.context$Umap1 <- bacteria.umap2$layout[,1]
+umap.context$Umap2 <- bacteria.umap2$layout[,2]
+umap.context$Umap3 <- bacteria.umap2$layout[,3]
+
+data.origin <- ifelse(umap.context$Dataset=="GA", "darkcyan", "orange") 
+
+plot(x=umap.context$Umap1, y=umap.context$Umap2 , col=data.origin, pch=19, xlab="UMAP 1", ylab="UMAP2",
+     main="UMAP visualization with Euclidean distance - Relative abundance bacteria")
+plot(x=umap.context$Umap1, y=umap.context$Umap3 , col=data.origin, pch=19, xlab="UMAP 1", ylab="UMAP3",
+     main="UMAP visualization with Euclidean distance - Relative abundance bacteria")
+
+save(bacteria.umap2,umap.context, file=paste0(OutDir,"Bacteria.umap.eucl.RData"))
+
+```
+
+
+
+
+```{r umap_ra_Euclidean_map}
+
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Umap1), data = umap.context) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Umap2), data = umap.context) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+ggmap(AusMap) + geom_point(aes(y = Latitude, x =Longitude,color=Umap3), data = umap.context) +
+  scale_color_viridis(discrete = FALSE, option="A", direction = -1)
+
+```
+
+
+#### End of the script for now
