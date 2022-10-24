@@ -1,0 +1,46 @@
+---
+title: "soil color mapping notes"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Workplan to develop up national soil color surfaces
+
+* Create a top and subsoil map of soil colors. 
+* Topsoil is the surface while subsoil is the master or dominant horizon
+* Soil data is entirely drawn from the soil data federator 
+* Soil color comes from field observation in the Hue-Value-Chroma color space
+* In addition to color there was some discussion of also mapping the near infrared region with the intention of that a soil color difference index would be useful for remote sensing applications.
+* The data for the NIR analysis are drawn from a different dataset which exclusively comes from the australian vis-nir library, and a seperte 
+
+
+* Getting munsell colors then converting the cieLAB and then digital soil mapping. This will get RGB.
+* Went After conversion from munsell to CIELAB a few different routes to model fitting was pursued. Ultimately it was best to just treat each independently. Tried to be fancy and treat them in a related way such as using one to predict the other and so forth but the results were substantially worse.
+* make a plot of R vs. NIR and see if a soil line falls out 
+
+
+Some processes that went into making the product
+
+* Talk about soil data federator and the data extraction
+* Quite a bit of data processing to get into format suitable for analysis. Development of HVC stripper function was one such output which is a function to granualise the HVC character string just so that we can convert to other color spaces ect.
+* The usual pre-processing of the data eg removal of missing values, duplicate readings.
+* Needed to distinguish topsoils and subsoils. Topsoil is easy but subsoil required looking at each profile below the surface and then looking for horizons or layers greater than 30cm and then selclecting the thickest layer from the available. This is entailed as the search for the master horizon.
+* Deriving other color space data from the Munsel HVC
+* Covariate data extraction
+* Modelling:
+- Type 1: Model each variable [L,a,b] independently
+- Type 2
+
+### Soil Line work
+
+Some interesting developments. The theory says that bare soil has an NDVI above 0 and usually between 0.05 and 0.2. The result to date appers to correspond with this theory but this is dependent on factors such soil color.
+
+
+
+
+
+
+
