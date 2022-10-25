@@ -3,14 +3,14 @@ library(sf)
 
 terraOptions(progress = 1)
 
-scriptDir <- '/datasets/work/af-digiscapesm/work/Ross/SLGA/SLGA/Development/Ross/Scripts/Functions'
-#rootDir <- '/datasets/work/af-digiscapesm/work/Ross/TERN/AWC/MeasuredTextures/V3/Parsimonious'
+scriptDir <- '/datasets/work/af-digiscapesm/work/Ross/R/SLGADevelopment/Ross/Functions'
+rootDir <- '/datasets/work/af-digiscapesm/work/Ross/TERN/AWC/MeasuredTextures/V3/Parsimonious'
 
-rootDir <- 'Y:/Ross/TERN/AWC/MeasuredTextures/V3/Parsimonious'
+
 workDir <- paste0(rootDir, '/TrainingData')
 validDir <- paste0(rootDir, '/ValidationStats')
 
-if(dir.exists(validDir))(dir.create(validDir))
+if(dir.exists(validDir))(dir.create(validDir, recursive=T) )
 
 source(paste0(scriptDir, '/ModelUtils.R'))
 
@@ -20,15 +20,15 @@ depths1 <- c('000', '005','015','030','060','100')
 depths2 <- c('005','015','030','060','100','200')
 
 att <- 'DUL'
-att <- 'DLL'
+att <- 'L15'
 
-d <- paste0('/scratch1/', ident, '/AWCv3/Parsimonious/Mosaics')
-#d <- paste0('/datasets/work/lw-soildatarepo/work/http/Products/TERN/SLGA/', att)
+#d <- paste0('/scratch1/', ident, '/AWCv3/Parsimonious/Mosaics')
+d <- paste0('/datasets/work/lw-soildatarepo/work/http/Products/TERN/SLGA/', att)
 
 for (i in 1:length(depths1)) {
   depth <- depths2[i]
-  #r <- rast(paste0(d, '/', att, '_', depths1[i], '_', depths2[i], '_EV_N_P_AU_TRN_N_20210614.tif'))
-  r <- rast(paste0(d, '/',att, '_', depth, '_Mean.tif'))
+  r <- rast(paste0(d, '/', att, '_', depths1[i], '_', depths2[i], '_EV_N_P_AU_TRN_N_20210614.tif'))
+  #r <- rast(paste0(d, '/',att, '_', depth, '_Mean.tif'))
   vdf <- na.omit(allValidSet[, c('Latitude', 'Longitude', paste0(att, '_', depths2[i]))])
   head(vdf)
   pts <- st_as_sf(vdf, coords = c("Longitude", "Latitude"), crs = 4326, remove = F)
@@ -37,7 +37,7 @@ for (i in 1:length(depths1)) {
   odf = data.frame(vdf, mv[2], stringsAsFactors = F)
   colnames(odf) <- c('Latitude', 'Longitude', paste0(att, '_', depths2[i],'_Observed'),  paste0(att, '_', depths2[i],'_Modelled'))
   RmodelFilename <- paste0(validDir, '/', att, '_', depth)
-  print(fitStats(obsVal=odf[3],modelVal=odf[4], attName=paste0(att,' ', depth, ' - RF'), outfilename = paste0(RmodelFilename, '_ModelStats.txt'), legPos='topleft', verbose = T, savePlot = T))
+  fitStats(obsVal=odf[3],modelVal=odf[4], attName=paste0(att,' ', depth, ' - RF'), outfilename = paste0(RmodelFilename, '_ModelStats.txt'), legPos='topleft', verbose = T, savePlot = T)
 }
 
 
