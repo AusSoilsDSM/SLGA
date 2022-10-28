@@ -1,13 +1,12 @@
-# Random Forest model fitting for digital soil mapping using the Ranger implementation of RF
-# Author - Peter Zund
-#
+# Fit Random Forest model
 # Using Ranger within Caret implementation of the original Random Forests algorithm 
 # Using Ranger for speed and Caret so that the predict raster function works
 # Random hold back of 30% of training data for validation of model
 # Model fitting using 10 K-folds with cross validation, final model fitted to 70% of training data
 # Uncertainty analysis by Bootstrapping
 #
-# Version 1.5 - 17/12/2021 - Fixed calculation of model stats when data is transformed with the natural log
+# Version 1.6 - 18/08/2022 - Fixed bug with R automatically changing covariate names
+# Version 1.5 - 01/06/2022 - Fixed bug with PICP plot
 # Version 1.4 - 15/04/2021 - Fixed bug with variable importance when only one depth present
 # Version 1.3 - 17/03/2021 - Added concordance and bias stats of model fit for both model calibration and validation
 # Version 1.2 - 15/03/2021 - Added variable importance calculation
@@ -17,16 +16,13 @@
 #
 # Required data and format
 # Training data in csv file in TrainingData subdirectory with following column label and order: X, Y, ID, VALUE
-# Covariate data in GTiff format, mosaic of whole modeling area in Covariate/Mosaics subdirectory
-# Covariate tiles in Covariate/Tiles/TileNumber subdirectory
-# Set user inputs below (wd & t) line 25 & 26
+# Covariate data in GTiff format in Covariate subdirectory
+# Set user inputs below (wd) and line 34
 
 ## User inputs
-wd <- "D:\\Temp\\P3" #set working directory
-t <- "Y" #Is the training data transformed? Enter either Y or N
+wd <- "//datasets/work/af-digiscapesm/work/Peter/PMap" #set working directory
 
 ## Processing starts here #####
-###library(httr)
 library(raster)
 library(rgdal)
 library(sp)
@@ -35,21 +31,24 @@ library(sp)
 ## Data prep
 # Get training data
 td <- paste(wd, "//TrainingData", sep = "")
-filename <- list.files(path = td)
 setwd(td)
-data <- read.table(filename, header = TRUE, sep = ",")
+data <- read.table("PData.csv", header = TRUE, sep = ",")
 depths <- names(data[-(1:3)]) # List of depths in training data
 
 # Get Covariates for whole modelling area
-##files <- list.files(path = paste(wd, "//Covariates//Mosaics", sep = ""), pattern = "\\.tif", full.names = TRUE) 
 files <- list.files(path = paste(wd, "//Covariates", sep = ""), pattern = "\\.tif", full.names = TRUE) 
-
 
 # Stack covariate rasters
 r1 <- raster(files[1])
 for(i in 2:length(files)){
   r1 <- stack(r1, files [i])
 }
+
+# These lines below just deal with R automatically changing covariate names   
+library(stringr)
+repdot <- str_replace_all(names(r1), '-', '.')
+repdot2 <- str_replace_all(repdot, '[+]', '.')
+names(r1) <- repdot2
 
 # Intersect soil points with covariates
 data_sp <- data
@@ -134,33 +133,17 @@ for (d in 1:length(depths)) {
   # Assess goodness of fit
   # Calibration data
   Mat <- matrix(NA, nrow = nbag, ncol = 6)
-  if(t == "N") {
-    for (i in 1:nbag) {
-      fit_ranger <- readRDS(r.models[i])
-      Dat <- cDat[1]
-      Dat <- setNames( Dat, c("obs")) 
-      Dat$pred <- predict(fit_ranger, newdata = cDat)
-      Mat[i, 1:3] <- as.matrix(defaultSummary(Dat)) # RMSE, R^2, MAE
-      Mat[i, 4] <- mean((Dat$obs -Dat$pred)^2) #MSE
-      Mat[i, 5] <- ccc(Dat$obs, Dat$pred) # Concordance
-      Mat[i, 6] <- sum(Dat$pred - Dat$obs)/length(Dat$obs) # Bias
-      }
-   }
-  # Stats if training data is transformed
-  if(t == "Y") {
-    for (i in 1:nbag) {
-      fit_ranger <- readRDS(r.models[i])
-      Dat <- cDat[1]
-      Dat <- setNames( Dat, c("obs")) 
-      Dat$pred <- predict(fit_ranger, newdata = cDat)
-      Dat <- exp(Dat)
-      Mat[i, 1:3] <- as.matrix(defaultSummary(Dat)) # RMSE, R^2, MAE
-      Mat[i, 4] <- mean((Dat$obs -Dat$pred)^2) #MSE
-      Mat[i, 5] <- ccc(Dat$obs, Dat$pred) # Concordance
-      Mat[i, 6] <- sum(Dat$pred - Dat$obs)/length(Dat$obs) # Bias
+  for (i in 1:nbag) {
+    fit_ranger <- readRDS(r.models[i])
+    Dat <- cDat[1]
+    Dat <- setNames( Dat, c("obs")) 
+    Dat$pred <- predict(fit_ranger, newdata = cDat)
+    Mat[i, 1:3] <- as.matrix(defaultSummary(Dat)) # RMSE, R^2, MAE
+    Mat[i, 4] <- mean((Dat$obs -Dat$pred)^2) #MSE
+    Mat[i, 5] <- ccc(Dat$obs, Dat$pred) # Concordance
+    Mat[i, 6] <- sum(Dat$pred - Dat$obs)/length(Dat$obs) # Bias
     }
-  } 
-    
+
   calDat <- as.data.frame(Mat)
   names(calDat) <- c("Calib_RMSE", "Calib_R2", "Calib_MAE", "Calib_MSE", "Calib_CC", "Calib_Bias")
   calDatmeans <- colMeans(calDat)
@@ -168,36 +151,18 @@ for (d in 1:length(depths)) {
   calGOOFDat <- rbind(calGOOFDat, calDatmeans)
   
   #Validation data
-  # Stats if training data is not transformed
   Pred.V <- matrix(NA, ncol = nbag, nrow = nrow(vDat))
   cubiMat <- matrix(NA, nrow = nbag, ncol =6)
-  if(t == "N") {
-    for (i in 1:nbag) {
-      fit_ranger <- readRDS(r.models[i])
-      Pred.V[, i] <- predict(fit_ranger, newdata = vDat)
-      Dat <- vDat[1]
-      Dat <- setNames( Dat, c("obs")) 
-      Dat$pred <- predict(fit_ranger, newdata = vDat)
-      cubiMat[i, 1:3] <- as.matrix(defaultSummary(Dat)) # RMSE, R^2, MAE
-      cubiMat[i, 4] <- as.matrix(mean((Dat$obs - Dat$pred)^2)) #MSE
-      cubiMat[i, 5] <- ccc(Dat$obs, Dat$pred) # Concordance
-      cubiMat[i, 6] <- sum(Dat$pred - Dat$obs)/length(Dat$obs) # Bias
-    }
-  }
-  # Stats if training data is transformed
-  if(t == "Y") {
-    for (i in 1:nbag) {
-      fit_ranger <- readRDS(r.models[i])
-      Pred.V[, i] <- predict(fit_ranger, newdata = vDat)
-      Dat <- vDat[1]
-      Dat <- setNames( Dat, c("obs")) 
-      Dat$pred <- predict(fit_ranger, newdata = vDat)
-      Dat <- exp(Dat)
-      cubiMat[i, 1:3] <- as.matrix(defaultSummary(Dat)) # RMSE, R^2, MAE
-      cubiMat[i, 4] <- as.matrix(mean((Dat$obs - Dat$pred)^2)) #MSE
-      cubiMat[i, 5] <- ccc(Dat$obs, Dat$pred) # Concordance
-      cubiMat[i, 6] <- sum(Dat$pred - Dat$obs)/length(Dat$obs) # Bias
-    }
+  for (i in 1:nbag) {
+    fit_ranger <- readRDS(r.models[i])
+    Pred.V[, i] <- predict(fit_ranger, newdata = vDat)
+    Dat <- vDat[1]
+    Dat <- setNames( Dat, c("obs")) 
+    Dat$pred <- predict(fit_ranger, newdata = vDat)
+    cubiMat[i, 1:3] <- as.matrix(defaultSummary(Dat)) # RMSE, R^2, MAE
+    cubiMat[i, 4] <- as.matrix(mean((Dat$obs - Dat$pred)^2)) #MSE
+    cubiMat[i, 5] <- ccc(Dat$obs, Dat$pred) # Concordance
+    cubiMat[i, 6] <- sum(Dat$pred - Dat$obs)/length(Dat$obs) # Bias
   }
   
   Pred.V_mean <- rowMeans(Pred.V)
@@ -246,7 +211,7 @@ for (d in 1:length(depths)) {
   }
   # Plot results to file
   jpeg(file = paste(getwd(),"/Bootstrap/", depths[d], "_PICP_plot.jpg", sep = ""))
-  cs <- c(99.5, 98.75, 97.5, 95, 90, 80, 70, 60, 55, 52.5)
+  cs <- c(99, 97.5, 95, 90, 80, 60, 40, 20, 10, 5)
   plot(cs, ((colSums(bMat)/nrow(bMat)) * 100), ylab = "PICP", xlab = "Confidence level", main = paste("Depth ", depths[d], sep = ""), abline(0,1), xlim = c(0, 100), ylim = c(0, 100))
   dev.off()
 }
@@ -268,3 +233,4 @@ write.csv(GOOFDat, "GOOFData.csv", row.names = FALSE)
 write.csv(avgMSE, "avgMSE.csv", row.names = FALSE) #Save to file for using in mapping part on HPC
 write.csv(ovi, "Overall_variable_importance.csv")
 
+# End of script
