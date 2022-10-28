@@ -131,62 +131,62 @@ FertYN,Primary,Tertiary,Name
 2,5,5.4.1,Urban residential
 2,5,5.4.2,Rural residential with agriculture
 1,5,5.4.3,Rural residential without agriculture
-1,5,5.4.4,Remote communities
-1,5,5.4.5,Farm buildings/infrastructure
+2,5,5.4.4,Remote communities
+2,5,5.4.5,Farm buildings/infrastructure
 2,5,5.5.0,Services
 2,5,5.5.1,Commercial services
 2,5,5.5.2,Public services
 2,5,5.5.3,Recreation and culture
-1,5,5.5.4,Defence facilities - urban
-1,5,5.5.5,Research facilities
-1,5,5.6.0,Utilities
-1,5,5.6.1,Fuel powered electricity generation
-1,5,5.6.2,Hydro electricity generation
+2,5,5.5.4,Defence facilities - urban
+2,5,5.5.5,Research facilities
+2,5,5.6.0,Utilities
+2,5,5.6.1,Fuel powered electricity generation
+2,5,5.6.2,Hydro electricity generation
 1,5,5.6.3,Wind electricity generation
 1,5,5.6.4,Solar electricity generation
-1,5,5.6.5,Electricity substations and transmission
-1,5,5.6.6,"Gas treatment, storage and transmission"
-1,5,5.6.7,Water extraction and transmission
-1,5,5.7.0,Transport and communication
-1,5,5.7.1,Airports/aerodromes
-1,5,5.7.2,Roads
-1,5,5.7.3,Railways
-1,5,5.7.4,Ports and water transport
-1,5,5.7.5,Navigation and communication
-1,5,5.8.0,Mining
-1,5,5.8.1,Mines
-1,5,5.8.2,Quarries
+2,5,5.6.5,Electricity substations and transmission
+2,5,5.6.6,"Gas treatment, storage and transmission"
+2,5,5.6.7,Water extraction and transmission
+2,5,5.7.0,Transport and communication
+2,5,5.7.1,Airports/aerodromes
+2,5,5.7.2,Roads
+2,5,5.7.3,Railways
+2,5,5.7.4,Ports and water transport
+2,5,5.7.5,Navigation and communication
+2,5,5.8.0,Mining
+2,5,5.8.1,Mines
+2,5,5.8.2,Quarries
 2,5,5.8.3,Tailings
 1,5,5.8.4,Extractive Industry not in use
 2,5,5.9.0,Waste treatment and disposal
 2,5,5.9.1,Effluent pond
 2,5,5.9.2,Landfill
-1,5,5.9.3,Solid garbage
+2,5,5.9.3,Solid garbage
 2,5,5.9.4,Incinerators
 2,5,5.9.5,Sewage/sewerage
-1,6,6.1.0,Lake
-1,6,6.1.1,Lake - conservation
-1,6,6.1.2,Lake - production
-1,6,6.1.3,Lake - intensive use
-1,6,6.1.4,Lake - saline
-1,6,6.2.0,Reservoir/dam
-1,6,6.2.1,Reservoir
+2,6,6.1.0,Lake
+2,6,6.1.1,Lake - conservation
+2,6,6.1.2,Lake - production
+2,6,6.1.3,Lake - intensive use
+2,6,6.1.4,Lake - saline
+2,6,6.2.0,Reservoir/dam
+2,6,6.2.1,Reservoir
 2,6,6.2.2,Water storage - intensive use/farm dams
 2,6,6.2.3,Evaporation basin
-1,6,6.3.0,River
-1,6,6.3.1,River - conservation
-1,6,6.3.2,River - production
-1,6,6.3.3,River - intensive use
+2,6,6.3.0,River
+2,6,6.3.1,River - conservation
+2,6,6.3.2,River - production
+2,6,6.3.3,River - intensive use
 2,6,6.4.0,Channel/aqueduct
 2,6,6.4.1,Supply channel/aqueduct
 2,6,6.4.2,Drainage channel/aqueduct
 2,6,6.4.3,Stormwater
-1,6,6.5.0,Marsh/wetland
-1,6,6.5.1,Marsh/wetland - conservation
-1,6,6.5.2,Marsh/wetland - production
-1,6,6.5.3,Marsh/wetland - intensive use
-1,6,6.5.4,Marsh/wetland - saline
-1,6,6.6.0,Estuary/coastal waters
-1,6,6.6.1,Estuary/coastal waters - conservation
-1,6,6.6.2,Estuary/coastal waters - production
-1,6,6.6.3,Estuary/coastal waters - intensive use
+2,6,6.5.0,Marsh/wetland
+2,6,6.5.1,Marsh/wetland - conservation
+2,6,6.5.2,Marsh/wetland - production
+2,6,6.5.3,Marsh/wetland - intensive use
+2,6,6.5.4,Marsh/wetland - saline
+2,6,6.6.0,Estuary/coastal waters
+2,6,6.6.1,Estuary/coastal waters - conservation
+2,6,6.6.2,Estuary/coastal waters - production
+2,6,6.6.3,Estuary/coastal waters - intensive use
