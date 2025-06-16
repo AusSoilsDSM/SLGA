@@ -10,8 +10,8 @@ avail.datasets<- fromJSON("https://esoil.io/TERNLandscapes/SoilDataFederatoR/Soi
 avail.datasets
 
 ## DATA KEY
-# usr: brendan.malone@csiro.au
-# key: djwjgrpt74ld7wm
+# usr: Your Email
+# key: Your Passkey
 
 # FIELD DATA
 org.names<- c()

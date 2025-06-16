@@ -17,8 +17,8 @@ root<- "/datasets/work/af-tern-mal-deb/work/projects/ternlandscapes_2019/soil_CE
 library(jsonlite);library(httr);library(RCurl);library(curl)
 
 ## DATA KEY
-# usr: XXXXX
-# key: XXXXX
+# usr: Your Email
+# key: Your Passkey
 
 
 # Check what datasets are available
